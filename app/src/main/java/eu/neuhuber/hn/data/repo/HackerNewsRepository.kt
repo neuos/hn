@@ -1,9 +1,9 @@
 package eu.neuhuber.hn.data.repo
 
 import android.util.Log
-import eu.neuhuber.hn.data.model.CommentTree
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
+import eu.neuhuber.hn.ui.comments.CommentTree
 import io.ktor.client.*
 import io.ktor.client.engine.android.*
 import io.ktor.client.features.*

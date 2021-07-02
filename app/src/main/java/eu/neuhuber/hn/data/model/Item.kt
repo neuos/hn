@@ -38,4 +38,3 @@ data class Item(
     val time: Instant? = null
 )
 
-class CommentTree(val item: Item, val children: List<CommentTree>)

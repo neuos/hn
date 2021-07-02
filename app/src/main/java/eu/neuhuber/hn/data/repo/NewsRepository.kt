@@ -1,8 +1,8 @@
 package eu.neuhuber.hn.data.repo
 
-import eu.neuhuber.hn.data.model.CommentTree
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
+import eu.neuhuber.hn.ui.comments.CommentTree
 
 interface NewsRepository {
     suspend fun getTopStories() : Result<List<Item>>

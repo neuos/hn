@@ -1,9 +1,9 @@
 package eu.neuhuber.hn.data.repo
 
 import android.net.Uri
-import eu.neuhuber.hn.data.model.CommentTree
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
+import eu.neuhuber.hn.ui.comments.CommentTree
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext

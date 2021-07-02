@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -22,15 +21,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.material.fade
-import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
 import eu.neuhuber.hn.ui.theme.typography
+import eu.neuhuber.hn.ui.util.CardPlaceholder
 
 
 @Composable
@@ -73,18 +70,7 @@ fun StoryList(
 
 @Preview
 @Composable
-fun StoryPlaceholder() {
-    Card(
-        Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-            .height(96.dp)
-            .fillMaxHeight()
-            .placeholder(visible = true, highlight = PlaceholderHighlight.fade()),
-        elevation = 8.dp,
-    ) {
-    }
-}
+private fun StoryPlaceholder() = CardPlaceholder(height = 96.dp)
 
 
 @Composable

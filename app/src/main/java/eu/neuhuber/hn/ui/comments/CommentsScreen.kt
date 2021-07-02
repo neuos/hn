@@ -21,14 +21,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import eu.neuhuber.hn.data.model.CommentTree
 import eu.neuhuber.hn.data.model.Id
-import eu.neuhuber.hn.ui.LoadingSpinner
 import eu.neuhuber.hn.ui.theme.typography
+import eu.neuhuber.hn.ui.util.CardPlaceholder
+
+
+// TODO: top bar
+// TODO: story link (favicon?)
+// TODO: icon
+// TODO: top, newest, catchup
 
 
 @Composable
@@ -37,66 +43,61 @@ fun CommentsScreen(
     onBack: () -> Unit,
     viewModel: CommentsViewModel = viewModel()
 ) {
-    if (newsId == null) {
-        Text(text = "Invalid News Item")
-        return
-    } else {
-        viewModel.loadComments(newsId)
-    }
-    val comments = viewModel.comments.value
-    when {
-        comments == null -> {
-            Text("Loading Comments for news item with id $newsId")
-            LoadingSpinner()
-        }
-        comments.isEmpty() -> Text(text = "No comments yet")
-        else -> CommentTreeView(comments)
-    }
-}
+    if (newsId == null) Text(text = "Invalid News Item")
+    else {
 
-// TODO: make lazy loading
-
-
-@Composable
-fun ScrollingContainer(children: List<CommentTree>) {
-    LazyColumn(
-        Modifier
-            .fillMaxWidth()
-    ) {
-        items(children) {
-            CommentNode(it)
-        }
-    }
-}
-
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-fun CommentNode(tree: CommentTree, depth: Int = 0) {
-    val expanded = remember { mutableStateOf(depth<2) }
-
-    CommentCard(
-        text = tree.item.text.toString(),
-        childCount = tree.children.size,
-        depth = depth,
-        isExpanded = expanded.value
-    ) {
-        expanded.value = !expanded.value
-    }
-
-    AnimatedVisibility(visible = expanded.value) {
-        Column() {
-            tree.children.forEach {
-                CommentNode(it, depth + 1)
+        val loadComment: LazyCommentTree? = viewModel.loadComment(newsId)
+        if(loadComment == null) CommentPlaceHolder()
+        else{
+            LazyColumn(Modifier.fillMaxHeight()) {
+                items(loadComment.children){
+                    CommentNode(id = it.id)
+                }
             }
         }
     }
 }
 
 
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = viewModel()) {
+    val expanded = remember { mutableStateOf(false) }
+
+    val item = viewModel.loadComment(id)?.item
+
+    if (item == null)
+        CommentPlaceHolder()
+    else {
+        CommentCard(
+            text = item.text.toString(),
+            childCount = item.kids?.size ?: 0,
+            depth = depth,
+            isExpanded = expanded.value
+        ) {
+            expanded.value = !expanded.value
+        }
+
+        AnimatedVisibility(visible = expanded.value) {
+            Column {
+                item.kids?.forEach {
+                    CommentNode(it, depth + 1)
+                }
+            }
+        }
+
+    }
+}
+
+
+@Preview
+@Composable
+fun CommentPlaceHolder() = CardPlaceholder(height = 64.dp)
+
 @Composable
 fun CommentCard(
-    modifier: Modifier=Modifier,
+    modifier: Modifier = Modifier,
     text: String,
     childCount: Int,
     depth: Int,
@@ -114,12 +115,18 @@ fun CommentCard(
                 top = if (depth == 0) 8.dp else 4.dp,
                 start = ((depth + 1) * 4).dp,
                 end = 4.dp
-            )
-            ,
+            ),
     ) {
-        Column{
-            Box(modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp, bottom = if(expandable)0.dp else 8.dp))
-            {HtmlText(text = text)}
+        Column {
+            Box(
+                modifier = Modifier.padding(
+                    top = 8.dp,
+                    start = 8.dp,
+                    end = 8.dp,
+                    bottom = if (expandable) 0.dp else 8.dp
+                )
+            )
+            { HtmlText(text = text) }
 
 
 
@@ -132,7 +139,8 @@ fun CommentCard(
                             "This is the label",
                             onClick = toggleExpand
                         )
-                        .padding(vertical = 8.dp), horizontalArrangement = Arrangement.Center) {
+                        .padding(vertical = 8.dp), horizontalArrangement = Arrangement.Center
+                ) {
                     Text("$childCount Comments", style = typography.button)
                     if (isExpanded)
                         Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "collapse")
@@ -140,7 +148,7 @@ fun CommentCard(
                         Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "expand")
 
                 }
-           }
+            }
         }
     }
 }
@@ -153,15 +161,11 @@ fun HtmlText(text: String) {
     AndroidView(factory = {
         TextView(context).apply {
             setText(HtmlCompat.fromHtml(text, HtmlCompat.FROM_HTML_MODE_COMPACT))
-            setTextSize(16f)
+            textSize = 16f
             setLinkTextColor(linkColor.toArgb())
-            movementMethod = LinkMovementMethod.getInstance();
+            movementMethod = LinkMovementMethod.getInstance()
         }
     })
 }
 
 
-@Composable
-fun CommentTreeView(commentTree: List<CommentTree>, depth: Int = 0) {
-    ScrollingContainer(children = commentTree)
-}
