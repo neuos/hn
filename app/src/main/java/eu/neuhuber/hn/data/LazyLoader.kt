@@ -20,7 +20,7 @@ class LazyLoader<K, V>(
         // already cached
         map[k]?.let { return it }
 
-        Log.i("lazy", "try loading $k")
+        Log.v("lazy", "try loading $k")
 
         loaderScope.launch {
             // possibly currently something loading
@@ -28,13 +28,13 @@ class LazyLoader<K, V>(
                 if (queue.contains(k)) return@launch
                 queue.add(k)
             }
-            Log.i("lazy", "loading item $k")
+            Log.v("lazy", "loading item $k")
 
             load(k).onSuccess {
                 map[k] = it
-                Log.i("lazy", "loading done $k")
+                Log.v("lazy", "loading done $k")
             }.onFailure {
-                Log.i("lazy", "loading failed ${it.message}")
+                Log.w("lazy", "loading failed ${it.message}")
             }
         }
         return map[k]

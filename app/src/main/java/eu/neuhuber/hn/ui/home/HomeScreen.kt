@@ -1,8 +1,12 @@
 package eu.neuhuber.hn.ui.home
 
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,26 +14,30 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.TaskStackBuilder
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
+import eu.neuhuber.hn.ui.MainActivity
 import eu.neuhuber.hn.ui.theme.typography
 import eu.neuhuber.hn.ui.util.CardPlaceholder
+import eu.neuhuber.hn.ui.util.createBitmap
 
 
 @Composable
@@ -48,7 +56,11 @@ fun HomeScreen(
 
         when {
             viewModel.errorMessage != null ->
-                Column(Modifier.verticalScroll(rememberScrollState()).fillMaxHeight()) {
+                Column(
+                    Modifier
+                        .verticalScroll(rememberScrollState())
+                        .fillMaxHeight()
+                ) {
                     Text(text = viewModel.errorMessage.toString())
                     Text(text = viewModel.errorMessage.toString())
                     Text(text = viewModel.errorMessage.toString())
@@ -92,6 +104,9 @@ private fun StoryPlaceholder() = CardPlaceholder(height = 96.dp)
 fun Story(item: Item, navigateToComments: (Id) -> Unit) {
     val context = LocalContext.current
     val typography = typography()
+    val colors = MaterialTheme.colors
+    val icon = remember { createBitmap(context, R.drawable.ic_baseline_question_answer_24) }
+
     Card(
         Modifier
             .fillMaxWidth()
@@ -104,17 +119,19 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
         ) {
             Column(
                 Modifier
-                    .width(64.dp)
+                    .width(40.dp)
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text((item.score ?: 0).toString(), style = typography.h6)
+                Text((item.score ?: 0).toString(), style = typography.subtitle2)
             }
             Column(
                 Modifier
                     .weight(1f)
-                    .clickable(enabled = item.url != null) { openStory(context, item) }
+                    .clickable(enabled = item.url != null) {
+                        openStory(context, item, colors, icon)
+                    }
                     .padding(4.dp)
                     .fillMaxHeight()) {
                 Text(item.by ?: "no author", style = typography.overline)
@@ -139,13 +156,37 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
     }
 }
 
-fun openStory(context: Context, item: Item) {
+
+// TODO: use actual bitmap?
+fun openStory(context: Context, item: Item, colors: Colors, icon: Bitmap) {
     item.url?.let {
-        val intent = CustomTabsIntent.Builder().build();
+        context.resources
+
+        val deepLinkIntent = Intent(
+            Intent.ACTION_VIEW,
+            "eu.neuhuber.hn://comments/${item.id}".toUri(),
+            context,
+            MainActivity::class.java
+        )
+
+        val deepLinkPendingIntent: PendingIntent = TaskStackBuilder.create(context).run {
+            addNextIntentWithParentStack(deepLinkIntent)
+            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+        } ?: throw Exception("Intent not found")
+
+        val colorScheme = CustomTabColorSchemeParams.Builder()
+            .setToolbarColor(colors.primaryVariant.toArgb())
+            .setSecondaryToolbarColor(colors.secondary.toArgb())
+            .build()
+        val intent = CustomTabsIntent.Builder()
+            .setDefaultColorSchemeParams(colorScheme)
+            .setActionButton(icon, "Show Comments", deepLinkPendingIntent, false)
+            .build();
         intent.launchUrl(context, it);
         Log.i("hn", it.toString())
     }
 }
+
 
 @Preview
 @Composable
@@ -154,7 +195,7 @@ fun StoryPreview() {
         item = Item(
             id = 0,
             title = "Something very newsworthy has happend again",
-            score = 462,
+            score = 446,
             by = "neuos",
             descendants = 384,
             url = Uri.parse("https://neuhuber.eu/news/1")

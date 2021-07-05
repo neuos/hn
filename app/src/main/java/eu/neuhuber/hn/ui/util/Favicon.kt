@@ -22,7 +22,6 @@ fun Favicon(
     val faviconUri = faviconUrl(uri)
 
     val painter = rememberCoilPainter(faviconUri)
-    Log.i("Favicon", "loading for uri $uri")
 
     Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
         Image(

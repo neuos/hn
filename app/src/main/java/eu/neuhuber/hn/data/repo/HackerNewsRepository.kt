@@ -27,7 +27,7 @@ object HackerNewsRepository : NewsRepository {
     }
 
     private suspend inline fun <reified T> HttpClient.tryGet(path: String): Result<T> = try {
-        Log.i("repo", "get request to $path")
+        Log.d("repo", "get request to $path")
         Result.success(get(path = path))
     } catch (e: Throwable) {
         Log.e("HNRepo", e.message!!)

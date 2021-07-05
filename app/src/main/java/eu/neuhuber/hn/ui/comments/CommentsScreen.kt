@@ -36,6 +36,7 @@ import eu.neuhuber.hn.ui.home.openStory
 import eu.neuhuber.hn.ui.theme.typography
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.Favicon
+import eu.neuhuber.hn.ui.util.createBitmap
 
 
 // TODO: top bar
@@ -71,7 +72,6 @@ fun CommentsScreen(
 @Composable
 fun CommentScreenHeader(item: Item?) {
     val typography = typography()
-    val context = LocalContext.current
     if (item == null) CommentPlaceHolder()
     else {
         Card(Modifier.fillMaxWidth(), elevation = 8.dp) {
@@ -102,12 +102,17 @@ fun CommentScreenHeader(item: Item?) {
                     Text(item.url?.host ?: "url", style = typography.caption)
                 }
                 if (item.url != null) {
+
+                    val context = LocalContext.current
+                    val colors = MaterialTheme.colors
+                    val icon = remember{ createBitmap(context, R.drawable.ic_baseline_question_answer_24) }
+
                     Column(
                         modifier = Modifier
                             .width(40.dp)
                             .defaultMinSize(minHeight = 64.dp)
                             .fillMaxHeight()
-                            .clickable { openStory(context, item) }
+                            .clickable { openStory(context, item, colors, icon) }
                             .padding(8.dp),
                         Arrangement.Center,
                         Alignment.CenterHorizontally
