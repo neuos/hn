@@ -14,30 +14,8 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.Semaphore
 
 class CommentsViewModel : ViewModel() {
-    private val newsRepository: NewsRepository = HackerNewsRepository()
+    private val newsRepository: NewsRepository = HackerNewsRepository
     var errorMessage: String? = null
-
-    /*
-        val comments: MutableState<List<CommentTree>?> = mutableStateOf(null)
-
-    fun loadComments(itemId: Id) {
-        if (comments.value != null) return
-        Log.i("cmv", "trying to load comments, sem: ${sem.availablePermits()}")
-        if (sem.tryAcquire()) {
-            viewModelScope.launch {
-                Log.i("cmv", "starting to load comments, sem: ${sem.availablePermits()}")
-                comments.value = null
-                newsRepository.getComments(itemId).onSuccess {
-                    comments.value = it
-                }.onFailure {
-                    comments.value = null
-                    errorMessage = it.message
-                }
-                sem.release()
-                Log.i("cmv", "done loading comments, sem: ${sem.availablePermits()}")
-            }
-        }
-    }*/
 
     fun loadComment(id:Id): LazyCommentTree? = loader.loadValue(id)
 
@@ -72,5 +50,3 @@ class LazyCommentTree(val id: Id) {
         }
     var children: List<LazyCommentTree> = listOf()
 }
-
-class CommentTree(val item: Item, val children: List<CommentTree>)

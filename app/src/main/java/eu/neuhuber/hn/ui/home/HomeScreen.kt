@@ -8,6 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -36,15 +38,32 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel()
 ) {
     val storyIds = viewModel.storyIds.value
-    when {
-        viewModel.errorMessage != null ->
-            Text(text = viewModel.errorMessage.toString())
-        storyIds == null -> {
-            Column { (1..10).map { StoryPlaceholder() } }
+
+    val isRefreshing by viewModel.refresh.isRefreshing.collectAsState()
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing),
+        onRefresh = {
+            viewModel.refresh()
+        }) {
+
+        when {
+            viewModel.errorMessage != null ->
+                Column(Modifier.verticalScroll(rememberScrollState()).fillMaxHeight()) {
+                    Text(text = viewModel.errorMessage.toString())
+                    Text(text = viewModel.errorMessage.toString())
+                    Text(text = viewModel.errorMessage.toString())
+                    Text(text = viewModel.errorMessage.toString())
+                }
+            storyIds == null -> {
+                Column { (1..10).map { StoryPlaceholder() } }
+            }
+            else ->
+                StoryList(list = storyIds, navigateToComments, viewModel)
         }
-        else ->
-            StoryList(list = storyIds, navigateToComments, viewModel)
+
     }
+
+
 }
 
 
@@ -54,19 +73,15 @@ fun StoryList(
     navigateToComments: (Id) -> Unit,
     viewModel: HomeViewModel = viewModel()
 ) {
-    val isRefreshing by viewModel.refresher.isRefreshing.collectAsState()
-    SwipeRefresh(
-        state = rememberSwipeRefreshState(isRefreshing),
-        onRefresh = { viewModel.refresher.refresh() }) {
-        LazyColumn(Modifier.fillMaxHeight()) {
-            items(list) {
-                val item = viewModel.loadStory(it)
-                if (item == null) StoryPlaceholder()
-                else Story(item, navigateToComments)
-            }
+    LazyColumn(Modifier.fillMaxHeight()) {
+        items(list) {
+            val item = viewModel.loadStory(it)
+            if (item == null) StoryPlaceholder()
+            else Story(item, navigateToComments)
         }
     }
 }
+
 
 @Preview
 @Composable

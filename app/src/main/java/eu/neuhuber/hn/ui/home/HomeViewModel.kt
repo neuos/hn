@@ -8,15 +8,14 @@ import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
 import eu.neuhuber.hn.data.repo.HackerNewsRepository
 import eu.neuhuber.hn.ui.util.Refresher
-import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
-    private val newsRepository: HackerNewsRepository = HackerNewsRepository()
+    private val newsRepository = HackerNewsRepository
     val storyIds = mutableStateOf<List<Id>?>(null)
 
     var errorMessage: String? = null
 
-    val refresher = Refresher(viewModelScope) {
+    val refresh = Refresher(viewModelScope) {
         loadIds()
     }
 
@@ -27,12 +26,11 @@ class HomeViewModel : ViewModel() {
     fun loadStory(id: Id): Item? = loader.loadValue(id)
 
     init {
-        viewModelScope.launch {
-            refresher.refresh()
-        }
+        refresh()
     }
 
     private suspend fun loadIds() {
+        errorMessage = null
         storyIds.value = null
         loader.clear()
         newsRepository.getTopStoryIds().onSuccess { ids ->

@@ -3,23 +3,13 @@ package eu.neuhuber.hn.data.repo
 import android.net.Uri
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
-import eu.neuhuber.hn.ui.comments.CommentTree
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlin.random.Random
 
 class FakeNewsRepository : NewsRepository {
-    override suspend fun getTopStories(): Result<List<Item>> {
-        return withContext(Dispatchers.IO) {
-            delay(500)
-            Result.success(fakeItems)
-        }
-    }
 
-    override suspend fun getComments(itemId: Id): Result<List<CommentTree>> {
-        return Result.success(emptyList())
-    }
 
     override suspend fun getItem(itemId: Id): Result<Item> {
         return Result.success(randomItem())
