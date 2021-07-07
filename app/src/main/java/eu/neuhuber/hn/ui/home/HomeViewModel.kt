@@ -8,6 +8,7 @@ import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
 import eu.neuhuber.hn.data.repo.HackerNewsRepository
 import eu.neuhuber.hn.ui.util.Refresher
+import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
     private val newsRepository = HackerNewsRepository
@@ -23,22 +24,39 @@ class HomeViewModel : ViewModel() {
         newsRepository.getItem(id)
     }
 
+    val selected = mutableStateOf(SelectedList.Top)
+
+
     fun loadStory(id: Id): Item? = loader.loadValue(id)
 
     init {
         refresh()
     }
 
+    fun select(it: SelectedList) {
+        if (selected.value != it) {
+            selected.value = it
+            viewModelScope.launch {
+                loadIds()
+            }
+        }
+    }
+
     private suspend fun loadIds() {
         errorMessage = null
         storyIds.value = null
         loader.clear()
-        newsRepository.getTopStoryIds().onSuccess { ids ->
-            storyIds.value = ids
+
+        val ids = when (selected.value) {
+            SelectedList.Top -> newsRepository.getTopStories()
+            SelectedList.New -> newsRepository.getNewStories()
+            SelectedList.Best -> newsRepository.getBestStories()
+        }
+
+        ids.onSuccess {
+            storyIds.value = it
         }.onFailure {
             errorMessage = it.message
         }
     }
 }
-
-

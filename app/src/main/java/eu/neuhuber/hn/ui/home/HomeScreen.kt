@@ -15,13 +15,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,44 +41,65 @@ import eu.neuhuber.hn.ui.MainActivity
 import eu.neuhuber.hn.ui.theme.typography
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.createBitmap
+import eu.neuhuber.hn.ui.util.toLocalString
+import java.time.format.FormatStyle
 
+
+enum class SelectedList(val label: String, val icon: ImageVector) {
+    Top("Top", Icons.Filled.Home),
+    New("New", Icons.Filled.Notifications),
+    Best("Best", Icons.Filled.Star),
+}
 
 @Composable
 fun HomeScreen(
     navigateToComments: (Id) -> Unit,
     viewModel: HomeViewModel = viewModel()
 ) {
-    val storyIds = viewModel.storyIds.value
 
-    val isRefreshing by viewModel.refresh.isRefreshing.collectAsState()
-    SwipeRefresh(
-        state = rememberSwipeRefreshState(isRefreshing),
-        onRefresh = {
-            viewModel.refresh()
-        }) {
+    val selected: SelectedList by viewModel.selected
 
-        when {
-            viewModel.errorMessage != null ->
-                Column(
-                    Modifier
-                        .verticalScroll(rememberScrollState())
-                        .fillMaxHeight()
-                ) {
-                    Text(text = viewModel.errorMessage.toString())
-                    Text(text = viewModel.errorMessage.toString())
-                    Text(text = viewModel.errorMessage.toString())
-                    Text(text = viewModel.errorMessage.toString())
+    Scaffold(
+        bottomBar = {
+            BottomNavigation() {
+                SelectedList.values().forEach {
+                    BottomNavigationItem(
+                        selected = selected == it,
+                        onClick = { viewModel.select(it)},
+                        label = { Text(it.label) },
+                        icon = {
+                            Icon(it.icon, it.label)
+                        })
                 }
-            storyIds == null -> {
-                Column { (1..10).map { StoryPlaceholder() } }
             }
-            else ->
-                StoryList(list = storyIds, navigateToComments, viewModel)
         }
 
+    ) {
+        val storyIds = viewModel.storyIds.value
+        val isRefreshing by viewModel.refresh.isRefreshing.collectAsState()
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing),
+            onRefresh = {
+                viewModel.refresh()
+            }) {
+            when {
+                viewModel.errorMessage != null ->
+                    Column(
+                        Modifier
+                            .verticalScroll(rememberScrollState())
+                            .fillMaxHeight()
+                    ) {
+                        Text(text = viewModel.errorMessage.toString())
+                    }
+                storyIds == null -> {
+                    Column { (1..10).map { StoryPlaceholder() } }
+                }
+                else ->
+                    StoryList(list = storyIds, navigateToComments, viewModel)
+            }
+
+        }
     }
-
-
 }
 
 
@@ -105,7 +129,6 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
     val context = LocalContext.current
     val typography = typography()
     val colors = MaterialTheme.colors
-    val icon = remember { createBitmap(context, R.drawable.ic_baseline_question_answer_24) }
 
     Card(
         Modifier
@@ -130,13 +153,15 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
                 Modifier
                     .weight(1f)
                     .clickable(enabled = item.url != null) {
+                        val icon =  createBitmap(context, R.drawable.ic_baseline_question_answer_24)
+
                         openStory(context, item, colors, icon)
                     }
                     .padding(4.dp)
                     .fillMaxHeight()) {
-                Text(item.by ?: "no author", style = typography.overline)
+                Text("${item.by} - ${item.time?.toLocalString()}", style = typography.overline)
                 Text(item.title ?: "no title", style = typography.h6)
-                Text(item.url?.host ?: "url", style = typography.caption)
+                item.url?.host?.let { Text(it, style = typography.caption) }
             }
             Column(
                 modifier = Modifier
@@ -157,7 +182,6 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
 }
 
 
-// TODO: use actual bitmap?
 fun openStory(context: Context, item: Item, colors: Colors, icon: Bitmap) {
     item.url?.let {
         context.resources

@@ -25,5 +25,7 @@ fun createBitmap(context: Context, resourceId: Int): Bitmap {
     drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
     drawable.colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) })
     drawable.draw(canvas)
+    Log.i("bitmap", "bitmap created")
+
     return bitmap
 }

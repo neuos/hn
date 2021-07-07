@@ -1,9 +1,11 @@
 package eu.neuhuber.hn.ui
 
 import android.util.Log
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -11,7 +13,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
-import eu.neuhuber.hn.AppContainer
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.ui.MainDestinations.STORY_ID_ARGUMENT
 import eu.neuhuber.hn.ui.comments.CommentsScreen
@@ -24,9 +25,17 @@ object MainDestinations {
     const val STORY_ID_ARGUMENT = "storyId"
 }
 
+class MainActions(navController: NavHostController) {
+    val navigateToComments: (Id) -> Unit = { newsId ->
+        navController.navigate("${MainDestinations.COMMENTS_ROUTE}/$newsId"){
+            anim {
+            }
+        }
+    }
+}
+
 @Composable
 fun HnNavGraph(
-    appContainer: AppContainer,
     navController: NavHostController = rememberNavController(),
     startDestination: String = MainDestinations.HOME_ROUTE
 ) {
@@ -34,7 +43,8 @@ fun HnNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = startDestination,
+        modifier = Modifier.fillMaxSize()
     ) {
         composable(MainDestinations.HOME_ROUTE) {
             Log.d("navgraph", "opening home route")
@@ -54,6 +64,7 @@ fun HnNavGraph(
                 // TODO: make app return to source of link on back press instead of return to homescreen
                 navDeepLink {
                     uriPattern = "https://news.ycombinator.com/item?id={$STORY_ID_ARGUMENT}"
+                    this.action
                 })
         ) { backStackEntry ->
             Log.d(
@@ -62,19 +73,9 @@ fun HnNavGraph(
             )
             CommentsScreen(
                 newsId = backStackEntry.arguments?.getLong(STORY_ID_ARGUMENT),
-                onBack = actions.upPress,
             )
         }
     }
 }
 
-class MainActions(navController: NavHostController) {
-    val navigateToComments: (Id) -> Unit = { newsId ->
-        navController.navigate("${MainDestinations.COMMENTS_ROUTE}/$newsId")
-    }
-    val upPress: () -> Unit = {
-        Log.i("navController", "going back / up")
-        navController.popBackStack()
-        //navController.navigateUp()
-    }
-}
+

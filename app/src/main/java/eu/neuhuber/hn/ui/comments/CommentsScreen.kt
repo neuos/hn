@@ -39,16 +39,13 @@ import eu.neuhuber.hn.ui.util.Favicon
 import eu.neuhuber.hn.ui.util.createBitmap
 
 
-// TODO: top bar
 // TODO: icon
-// TODO: top, newest, catchup
-
+// TODO: styling
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CommentsScreen(
     newsId: Id?,
-    onBack: () -> Unit,
     viewModel: CommentsViewModel = viewModel()
 ) {
     if (newsId == null) Text(text = "Invalid News Item")
@@ -105,14 +102,15 @@ fun CommentScreenHeader(item: Item?) {
 
                     val context = LocalContext.current
                     val colors = MaterialTheme.colors
-                    val icon = remember{ createBitmap(context, R.drawable.ic_baseline_question_answer_24) }
 
                     Column(
                         modifier = Modifier
                             .width(40.dp)
                             .defaultMinSize(minHeight = 64.dp)
                             .fillMaxHeight()
-                            .clickable { openStory(context, item, colors, icon) }
+                            .clickable {
+                                val icon = createBitmap(context, R.drawable.ic_baseline_question_answer_24)
+                                openStory(context, item, colors, icon) }
                             .padding(8.dp),
                         Arrangement.Center,
                         Alignment.CenterHorizontally

@@ -14,9 +14,9 @@
         android:theme="@style/Theme.Hn">
         <activity
             android:name=".ui.MainActivity"
+            android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Hn"
-            android:exported="true">
+            android:theme="@style/Theme.Hn">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,21 +25,25 @@
 
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="eu.neuhuber.hn"
-                    android:host="comments" />
+
+                <data
+                    android:host="comments"
+                    android:scheme="eu.neuhuber.hn" />
             </intent-filter>
 
-            <intent-filter >
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data
                     android:host="news.ycombinator.com"
                     android:scheme="https" />
             </intent-filter>
-
         </activity>
     </application>
 </manifest>

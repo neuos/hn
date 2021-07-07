@@ -34,7 +34,15 @@ object HackerNewsRepository : NewsRepository {
         Result.failure(e)
     }
 
-    suspend fun getTopStoryIds(): Result<List<Id>> = client.tryGet("v0/topstories.json")
+    suspend fun getTopStories(): Result<List<Id>> = client.tryGet("v0/topstories.json")
 
     override suspend fun getItem(itemId: Id): Result<Item> = client.tryGet("v0/item/$itemId.json")
+
+    suspend fun getNewStories(): Result<List<Id>> {
+        return client.tryGet("/v0/newstories.json")
+    }
+
+    suspend fun getBestStories(): Result<List<Id>> {
+        return client.tryGet("/v0/beststories.json")
+    }
 }
