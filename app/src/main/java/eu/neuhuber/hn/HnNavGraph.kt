@@ -1,8 +1,7 @@
-package eu.neuhuber.hn.ui
+package eu.neuhuber.hn
 
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -13,8 +12,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navDeepLink
+import eu.neuhuber.hn.MainDestinations.STORY_ID_ARGUMENT
 import eu.neuhuber.hn.data.model.Id
-import eu.neuhuber.hn.ui.MainDestinations.STORY_ID_ARGUMENT
 import eu.neuhuber.hn.ui.comments.CommentsScreen
 import eu.neuhuber.hn.ui.home.HomeScreen
 
@@ -27,7 +26,7 @@ object MainDestinations {
 
 class MainActions(navController: NavHostController) {
     val navigateToComments: (Id) -> Unit = { newsId ->
-        navController.navigate("${MainDestinations.COMMENTS_ROUTE}/$newsId"){
+        navController.navigate("${MainDestinations.COMMENTS_ROUTE}/$newsId") {
             anim {
             }
         }
@@ -47,12 +46,9 @@ fun HnNavGraph(
         modifier = Modifier.fillMaxSize()
     ) {
         composable(MainDestinations.HOME_ROUTE) {
-            Log.d(javaClass.name, "opening home route")
-            MaterialTheme() {
-                HomeScreen(
-                    navigateToComments = actions.navigateToComments,
-                )
-            }
+            HomeScreen(
+                navigateToComments = actions.navigateToComments,
+            )
         }
         composable(
             "${MainDestinations.COMMENTS_ROUTE}/{$STORY_ID_ARGUMENT}",

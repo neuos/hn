@@ -4,7 +4,6 @@ import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,16 +32,11 @@ import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
 import eu.neuhuber.hn.ui.home.openStory
-import eu.neuhuber.hn.ui.theme.typography
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.Favicon
 import eu.neuhuber.hn.ui.util.createBitmap
 
 
-// TODO: icon
-// TODO: styling
-
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CommentsScreen(
     newsId: Id?,
@@ -68,7 +62,7 @@ fun CommentsScreen(
 
 @Composable
 fun CommentScreenHeader(item: Item?) {
-    val typography = typography()
+    val typography = MaterialTheme.typography
     if (item == null) CommentPlaceHolder()
     else {
         Card(Modifier.fillMaxWidth(), elevation = 8.dp) {
@@ -109,8 +103,10 @@ fun CommentScreenHeader(item: Item?) {
                             .defaultMinSize(minHeight = 64.dp)
                             .fillMaxHeight()
                             .clickable {
-                                val icon = createBitmap(context, R.drawable.ic_baseline_question_answer_24)
-                                openStory(context, item, colors, icon) }
+                                val icon =
+                                    createBitmap(context, R.drawable.ic_baseline_question_answer_24)
+                                openStory(context, item, colors, icon)
+                            }
                             .padding(8.dp),
                         Arrangement.Center,
                         Alignment.CenterHorizontally
@@ -175,7 +171,7 @@ fun CommentCard(
     toggleExpand: () -> Unit
 ) {
     val expandable = childCount > 0
-    val typography = typography()
+    val typography = MaterialTheme.typography
 
     Card(
         elevation = (4).dp,

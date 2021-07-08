@@ -11,4 +11,4 @@ interface NewsRepository {
 }
 
 
-//TODO: DI
+//TODO: DI?

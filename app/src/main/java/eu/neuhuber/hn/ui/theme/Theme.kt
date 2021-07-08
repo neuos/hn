@@ -5,17 +5,19 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import eu.neuhuber.hn.ui.theme.ResourceColor.*
 
-private val DarkColorPalette = darkColors(
-    primary = Purple200,
-    primaryVariant = Purple700,
-    secondary = Teal200
+@Composable
+fun darkColorPalette() = darkColors(
+    primary = HNOrangeLight.load(),
+    primaryVariant = HNOrangeDark.load(),
 )
 
-private val LightColorPalette = lightColors(
-    primary = Purple500,
-    primaryVariant = Purple700,
-    secondary = Teal200
+@Composable
+fun lightColorPalette() = lightColors(
+    primary =   HNOrange.load(),
+    primaryVariant = HNOrangeDark.load(),
+    surface = HNGrey.load()
 
     /* Other default colors to override
     background = Color.White,
@@ -30,9 +32,9 @@ private val LightColorPalette = lightColors(
 @Composable
 fun HnTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
     val colors = if (darkTheme) {
-        DarkColorPalette
+        darkColorPalette()
     } else {
-        LightColorPalette
+        lightColorPalette()
     }
 
     MaterialTheme(
@@ -42,6 +44,3 @@ fun HnTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() (
         content = content
     )
 }
-
-@Composable
-fun typography() = MaterialTheme.typography;

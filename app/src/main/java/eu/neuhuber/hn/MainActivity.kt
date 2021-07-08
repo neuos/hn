@@ -1,15 +1,18 @@
-package eu.neuhuber.hn.ui
+package eu.neuhuber.hn
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import eu.neuhuber.hn.HNApplication
+import androidx.navigation.compose.rememberNavController
+import eu.neuhuber.hn.ui.theme.HnTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            HnApp()
+            HnTheme {
+                HnNavGraph(rememberNavController())
+            }
         }
     }
 }

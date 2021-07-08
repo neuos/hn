@@ -16,7 +16,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Star
@@ -37,12 +36,10 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
-import eu.neuhuber.hn.ui.MainActivity
-import eu.neuhuber.hn.ui.theme.typography
+import eu.neuhuber.hn.MainActivity
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.createBitmap
 import eu.neuhuber.hn.ui.util.toLocalString
-import java.time.format.FormatStyle
 
 
 enum class SelectedList(val label: String, val icon: ImageVector) {
@@ -127,7 +124,7 @@ private fun StoryPlaceholder() = CardPlaceholder(height = 96.dp)
 @Composable
 fun Story(item: Item, navigateToComments: (Id) -> Unit) {
     val context = LocalContext.current
-    val typography = typography()
+    val typography = MaterialTheme.typography
     val colors = MaterialTheme.colors
 
     Card(
@@ -153,7 +150,7 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
                 Modifier
                     .weight(1f)
                     .clickable(enabled = item.url != null) {
-                        val icon =  createBitmap(context, R.drawable.ic_baseline_question_answer_24)
+                        val icon = createBitmap(context, R.drawable.ic_baseline_question_answer_24)
 
                         openStory(context, item, colors, icon)
                     }
@@ -202,11 +199,12 @@ fun openStory(context: Context, item: Item, colors: Colors, icon: Bitmap) {
             .setToolbarColor(colors.primaryVariant.toArgb())
             .setSecondaryToolbarColor(colors.secondary.toArgb())
             .build()
+
         val intent = CustomTabsIntent.Builder()
             .setDefaultColorSchemeParams(colorScheme)
             .setActionButton(icon, "Show Comments", deepLinkPendingIntent, false)
             .build();
-        intent.launchUrl(context, uri);
+        intent.launchUrl(context, uri)
         Log.i("openStory", uri.toString())
     }
 }
