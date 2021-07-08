@@ -15,15 +15,15 @@ class Refresher(private val scope: CoroutineScope, private val block: suspend ()
     val isRefreshing: StateFlow<Boolean> = refreshingState.asStateFlow()
 
     operator fun invoke() {
-        Log.i("refresher", "refresh request")
+        Log.i(javaClass.name, "refresh request")
         if (sem.tryAcquire()) {
-            Log.i("refresher", "currently not refreshing")
+            Log.i(javaClass.name, "currently not refreshing")
             scope.launch {
                 refreshingState.emit(true)
-                Log.i("refresher", "refreshing started")
+                Log.i(javaClass.name, "refreshing started")
                 block()
                 refreshingState.emit(false)
-                Log.i("refresher", "refreshing done")
+                Log.i(javaClass.name, "refreshing done")
                 sem.release()
             }
         }

@@ -27,22 +27,22 @@ object HackerNewsRepository : NewsRepository {
     }
 
     private suspend inline fun <reified T> HttpClient.tryGet(path: String): Result<T> = try {
-        Log.d("repo", "get request to $path")
+        Log.d(javaClass.name, "get request to $path")
         Result.success(get(path = path))
     } catch (e: Throwable) {
-        Log.e("HNRepo", e.message!!)
+        Log.e(javaClass.name, e.message!!)
         Result.failure(e)
     }
 
-    suspend fun getTopStories(): Result<List<Id>> = client.tryGet("v0/topstories.json")
+    override suspend fun getTopStories(): Result<List<Id>> = client.tryGet("v0/topstories.json")
 
     override suspend fun getItem(itemId: Id): Result<Item> = client.tryGet("v0/item/$itemId.json")
 
-    suspend fun getNewStories(): Result<List<Id>> {
+    override suspend fun getNewStories(): Result<List<Id>> {
         return client.tryGet("/v0/newstories.json")
     }
 
-    suspend fun getBestStories(): Result<List<Id>> {
+    override suspend fun getBestStories(): Result<List<Id>> {
         return client.tryGet("/v0/beststories.json")
     }
 }

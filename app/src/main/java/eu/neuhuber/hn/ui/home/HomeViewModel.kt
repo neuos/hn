@@ -7,11 +7,12 @@ import eu.neuhuber.hn.data.LazyLoader
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
 import eu.neuhuber.hn.data.repo.HackerNewsRepository
+import eu.neuhuber.hn.data.repo.NewsRepository
 import eu.neuhuber.hn.ui.util.Refresher
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
-    private val newsRepository = HackerNewsRepository
+    private val newsRepository: NewsRepository = HackerNewsRepository
     val storyIds = mutableStateOf<List<Id>?>(null)
 
     var errorMessage: String? = null
@@ -47,7 +48,7 @@ class HomeViewModel : ViewModel() {
         storyIds.value = null
         loader.clear()
 
-        val ids = when (selected.value) {
+        val ids: Result<List<Id>> = when (selected.value) {
             SelectedList.Top -> newsRepository.getTopStories()
             SelectedList.New -> newsRepository.getNewStories()
             SelectedList.Best -> newsRepository.getBestStories()

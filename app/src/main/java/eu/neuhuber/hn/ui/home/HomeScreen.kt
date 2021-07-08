@@ -183,7 +183,7 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
 
 
 fun openStory(context: Context, item: Item, colors: Colors, icon: Bitmap) {
-    item.url?.let {
+    item.url?.let { uri ->
         context.resources
 
         val deepLinkIntent = Intent(
@@ -206,8 +206,8 @@ fun openStory(context: Context, item: Item, colors: Colors, icon: Bitmap) {
             .setDefaultColorSchemeParams(colorScheme)
             .setActionButton(icon, "Show Comments", deepLinkPendingIntent, false)
             .build();
-        intent.launchUrl(context, it);
-        Log.i("hn", it.toString())
+        intent.launchUrl(context, uri);
+        Log.i("openStory", uri.toString())
     }
 }
 

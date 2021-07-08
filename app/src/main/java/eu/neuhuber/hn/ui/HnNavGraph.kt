@@ -47,7 +47,7 @@ fun HnNavGraph(
         modifier = Modifier.fillMaxSize()
     ) {
         composable(MainDestinations.HOME_ROUTE) {
-            Log.d("navgraph", "opening home route")
+            Log.d(javaClass.name, "opening home route")
             MaterialTheme() {
                 HomeScreen(
                     navigateToComments = actions.navigateToComments,

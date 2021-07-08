@@ -28,8 +28,8 @@ class CommentsViewModel : ViewModel() {
         val item = newsRepository.getItem(id)
         item.onFailure {
             errorMessage = it.message
-            Log.e("comments", it.message.toString())
-            Log.e("comments", it.stackTraceToString())
+            Log.e(javaClass.name, it.message.toString())
+            Log.e(javaClass.name, it.stackTraceToString())
             return Result.failure(it)
         }.onSuccess {
             tree.item = it
