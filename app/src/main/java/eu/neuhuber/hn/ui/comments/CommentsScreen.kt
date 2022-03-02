@@ -4,6 +4,8 @@ import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -34,6 +37,7 @@ import eu.neuhuber.hn.ui.util.Favicon
 import eu.neuhuber.hn.ui.util.createBitmap
 
 
+@OptIn(ExperimentalFoundationApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun CommentsScreen(
     newsId: Id?,
@@ -41,13 +45,15 @@ fun CommentsScreen(
 ) {
     if (newsId == null) Text(text = "Invalid News Item")
     else {
-
         val loadComment: LazyCommentTree? = viewModel.loadComment(newsId)
         if (loadComment == null) CommentPlaceHolder()
         else {
             LazyColumn(Modifier.fillMaxHeight()) {
                 item {
                     CommentScreenHeader(loadComment.item)
+                    loadComment.item?.text?.let {
+                        CommentCard(text = it)
+                    }
                 }
                 items(loadComment.children) {
                     CommentNode(id = it.id)
@@ -164,10 +170,10 @@ fun CommentPlaceHolder() = CardPlaceholder(height = 64.dp)
 fun CommentCard(
     modifier: Modifier = Modifier,
     text: String,
-    childCount: Int,
-    depth: Int,
-    isExpanded: Boolean,
-    toggleExpand: () -> Unit
+    childCount: Int = 0,
+    depth: Int = 0,
+    isExpanded: Boolean = false,
+    toggleExpand: () -> Unit = {}
 ) {
     val expandable = childCount > 0
     val typography = MaterialTheme.typography
