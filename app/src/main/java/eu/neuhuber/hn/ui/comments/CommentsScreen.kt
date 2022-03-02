@@ -3,9 +3,6 @@ package eu.neuhuber.hn.ui.comments
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,10 +16,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -35,9 +32,11 @@ import eu.neuhuber.hn.ui.home.openStory
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.Favicon
 import eu.neuhuber.hn.ui.util.createBitmap
+import eu.neuhuber.hn.ui.util.toLocalString
+import java.time.Instant
 
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentsScreen(
     newsId: Id?,
@@ -52,7 +51,7 @@ fun CommentsScreen(
                 item {
                     CommentScreenHeader(loadComment.item)
                     loadComment.item?.text?.let {
-                        CommentCard(text = it)
+                        CommentCard(text = it, author = loadComment.item?.by, time = loadComment.item?.time)
                     }
                 }
                 items(loadComment.children) {
@@ -132,7 +131,6 @@ fun CommentScreenHeader(item: Item?) {
 }
 
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = viewModel()) {
     val expanded = remember { mutableStateOf(depth < 2) }
@@ -143,10 +141,12 @@ fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = viewModel
         CommentPlaceHolder()
     else {
         CommentCard(
-            text = item.text.toString(),
+            text = item.text,
             childCount = item.kids?.size ?: 0,
             depth = depth,
-            isExpanded = expanded.value
+            isExpanded = expanded.value,
+            author = item.by,
+            time = item.time
         ) {
             expanded.value = !expanded.value
         }
@@ -170,8 +170,10 @@ fun CommentPlaceHolder() = CardPlaceholder(height = 64.dp)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentCard(
+    text: String?,
     modifier: Modifier = Modifier,
-    text: String,
+    author: String? = null,
+    time: Instant? = null,
     childCount: Int = 0,
     depth: Int = 0,
     isExpanded: Boolean = false,
@@ -198,7 +200,15 @@ fun CommentCard(
                     bottom = if (expandable) 0.dp else 8.dp
                 )
             )
-            { HtmlText(text = text) }
+            {
+                Column {
+                    author?.let {  Text("$it - ${time?.toLocalString()}", style = typography.labelSmall) }
+                    if(text!=null) { HtmlText(text = text) }
+                    else{
+                        Text(text = "deleted", textDecoration = TextDecoration.LineThrough)
+                    }
+                }
+            }
 
 
 
