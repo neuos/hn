@@ -1,46 +1,37 @@
 package eu.neuhuber.hn.ui.theme
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import eu.neuhuber.hn.ui.theme.ResourceColor.*
 
+val dynamic = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
 @Composable
-fun darkColorPalette() = darkColors(
+fun hnDarkColorScheme() = darkColorScheme(
     primary = HNOrangeLight.load(),
-    primaryVariant = HNOrangeDark.load(),
 )
 
 @Composable
-fun lightColorPalette() = lightColors(
-    primary =   HNOrange.load(),
-    primaryVariant = HNOrangeDark.load(),
+fun hnLightColorScheme() = lightColorScheme(
+    primary = HNOrange.load(),
     surface = HNGrey.load()
-
-    /* Other default colors to override
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
 )
 
 @Composable
-fun HnTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
-    val colors = if (darkTheme) {
-        darkColorPalette()
+fun HnTheme(isDark: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
+    val colorScheme = if (dynamic) {
+        val context = LocalContext.current
+        if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
     } else {
-        lightColorPalette()
+        if (isDark) hnDarkColorScheme() else hnLightColorScheme()
     }
 
     MaterialTheme(
-        colors = colors,
-        typography = Typography,
-        shapes = Shapes,
-        content = content
+        colorScheme = colorScheme,
+        content = content,
+        typography = Typography
     )
 }

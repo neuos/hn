@@ -3,6 +3,7 @@ package eu.neuhuber.hn.ui.home
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
@@ -14,12 +15,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.runtime.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -33,10 +36,10 @@ import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import eu.neuhuber.hn.MainActivity
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
-import eu.neuhuber.hn.MainActivity
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.createBitmap
 import eu.neuhuber.hn.ui.util.toLocalString
@@ -48,6 +51,7 @@ enum class SelectedList(val label: String, val icon: ImageVector) {
     Best("Best", Icons.Filled.Star),
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navigateToComments: (Id) -> Unit,
@@ -58,11 +62,11 @@ fun HomeScreen(
 
     Scaffold(
         bottomBar = {
-            BottomNavigation() {
+            NavigationBar() {
                 SelectedList.values().forEach {
-                    BottomNavigationItem(
+                    NavigationBarItem(
                         selected = selected == it,
-                        onClick = { viewModel.select(it)},
+                        onClick = { viewModel.select(it) },
                         label = { Text(it.label) },
                         icon = {
                             Icon(it.icon, it.label)
@@ -121,16 +125,17 @@ fun StoryList(
 private fun StoryPlaceholder() = CardPlaceholder(height = 96.dp)
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Story(item: Item, navigateToComments: (Id) -> Unit) {
     val context = LocalContext.current
     val typography = MaterialTheme.typography
-    val colors = MaterialTheme.colors
+    val colors = MaterialTheme.colorScheme
 
-    Card(
+    ElevatedCard(
         Modifier
             .fillMaxWidth()
-            .padding(4.dp), elevation = 8.dp
+            .padding(4.dp),
     ) {
         Row(
             Modifier
@@ -144,7 +149,7 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text((item.score ?: 0).toString(), style = typography.subtitle2)
+                Text((item.score ?: 0).toString(), style = typography.titleMedium)
             }
             Column(
                 Modifier
@@ -156,9 +161,9 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
                     }
                     .padding(4.dp)
                     .fillMaxHeight()) {
-                Text("${item.by} - ${item.time?.toLocalString()}", style = typography.overline)
-                Text(item.title ?: "no title", style = typography.h6)
-                item.url?.host?.let { Text(it, style = typography.caption) }
+                Text("${item.by} - ${item.time?.toLocalString()}", style = typography.labelSmall)
+                Text(item.title ?: "no title", style = typography.titleLarge)
+                item.url?.host?.let { Text(it, style = typography.labelMedium) }
             }
             Column(
                 modifier = Modifier
@@ -172,14 +177,14 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
                     painter = painterResource(id = R.drawable.ic_baseline_question_answer_24),
                     contentDescription = null
                 )
-                Text(text = (item.descendants ?: 0).toString(), style = typography.body1)
+                Text(text = (item.descendants ?: 0).toString(), style = typography.bodyMedium)
             }
         }
     }
 }
 
 
-fun openStory(context: Context, item: Item, colors: Colors, icon: Bitmap) {
+fun openStory(context: Context, item: Item, colors: ColorScheme, icon: Bitmap) {
     item.url?.let { uri ->
         context.resources
 
@@ -196,7 +201,7 @@ fun openStory(context: Context, item: Item, colors: Colors, icon: Bitmap) {
         } ?: throw Exception("Intent not found")
 
         val colorScheme = CustomTabColorSchemeParams.Builder()
-            .setToolbarColor(colors.primaryVariant.toArgb())
+            .setToolbarColor(colors.primary.toArgb())
             .setSecondaryToolbarColor(colors.secondary.toArgb())
             .build()
 
@@ -210,9 +215,25 @@ fun openStory(context: Context, item: Item, colors: Colors, icon: Bitmap) {
 }
 
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, name = "Dark mode")
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, showBackground = true, name = "Light mode")
 @Composable
 fun StoryPreview() {
+    Story(
+        item = Item(
+            id = 0,
+            title = "Something very newsworthy has happend again",
+            score = 446,
+            by = "neuos",
+            descendants = 384,
+            url = Uri.parse("https://neuhuber.eu/news/1")
+        )
+    ) {}
+}
+
+@Preview
+@Composable
+fun StoryPreviewDark() {
     Story(
         item = Item(
             id = 0,

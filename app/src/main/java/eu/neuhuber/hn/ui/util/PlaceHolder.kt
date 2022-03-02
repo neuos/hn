@@ -4,26 +4,48 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Card
+import androidx.compose.material3.contentColorFor
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.material.fade
+import com.google.accompanist.placeholder.fade
 import com.google.accompanist.placeholder.material.placeholder
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardPlaceholder(height: Dp) {
-    Card(
+    ElevatedCard(
         Modifier
             .fillMaxWidth()
             .padding(4.dp)
             .height(height)
             .fillMaxHeight()
-            .placeholder(visible = true, highlight = PlaceholderHighlight.fade()),
-        elevation = 8.dp,
+            .placeholder(
+                color = placeholderColor(),
+                visible = true, highlight = PlaceholderHighlight.fade(
+                    highlightColor = fadeHighlightColor()
+                )
+            ),
     ) {
     }
 }
+
+@Composable
+fun fadeHighlightColor(
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    alpha: Float = 0.3f,
+): Color = backgroundColor.copy(alpha = alpha)
+
+@Composable
+fun placeholderColor(
+    backgroundColor: Color = MaterialTheme.colorScheme.surface,
+    contentColor: Color = contentColorFor(backgroundColor),
+    contentAlpha: Float = 0.1f,
+): Color = contentColor.copy(contentAlpha).compositeOver(backgroundColor)

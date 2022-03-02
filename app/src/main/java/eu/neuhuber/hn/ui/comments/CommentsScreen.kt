@@ -8,13 +8,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,12 +57,13 @@ fun CommentsScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentScreenHeader(item: Item?) {
     val typography = MaterialTheme.typography
     if (item == null) CommentPlaceHolder()
     else {
-        Card(Modifier.fillMaxWidth(), elevation = 8.dp) {
+        ElevatedCard(Modifier.fillMaxWidth()) {
 
             Row(
                 Modifier
@@ -79,7 +77,7 @@ fun CommentScreenHeader(item: Item?) {
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text((item.score ?: 0).toString(), style = typography.h6)
+                    Text((item.score ?: 0).toString(), style = typography.titleMedium)
                 }
 
                 Column(
@@ -88,14 +86,14 @@ fun CommentScreenHeader(item: Item?) {
                         .padding(8.dp)
                         .fillMaxHeight()
                 ) {
-                    Text(item.by ?: "no author", style = typography.overline)
-                    Text(item.title ?: "no title", style = typography.h6)
-                    Text(item.url?.host ?: "url", style = typography.caption)
+                    Text(item.by ?: "no author", style = typography.labelSmall)
+                    Text(item.title ?: "no title", style = typography.titleMedium)
+                    Text(item.url?.host ?: "url", style = typography.bodySmall)
                 }
                 if (item.url != null) {
 
                     val context = LocalContext.current
-                    val colors = MaterialTheme.colors
+                    val colors = androidx.compose.material3.MaterialTheme.colorScheme
 
                     Column(
                         modifier = Modifier
@@ -161,6 +159,7 @@ fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = viewModel
 @Composable
 fun CommentPlaceHolder() = CardPlaceholder(height = 64.dp)
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentCard(
     modifier: Modifier = Modifier,
@@ -173,8 +172,7 @@ fun CommentCard(
     val expandable = childCount > 0
     val typography = MaterialTheme.typography
 
-    Card(
-        elevation = (4).dp,
+    ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(
@@ -207,7 +205,7 @@ fun CommentCard(
                         )
                         .padding(vertical = 8.dp), horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("$childCount Comments", style = typography.button)
+                    Text("$childCount Comments", style = typography.labelLarge)
                     if (isExpanded)
                         Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "collapse")
                     else
@@ -222,7 +220,7 @@ fun CommentCard(
 @Composable
 fun HtmlText(text: String) {
     val context = LocalContext.current
-    val linkColor = MaterialTheme.colors.primary
+    val linkColor = MaterialTheme.colorScheme.primary
 
     AndroidView(factory = {
         TextView(context).apply {
