@@ -37,7 +37,7 @@ import eu.neuhuber.hn.ui.util.Favicon
 import eu.neuhuber.hn.ui.util.createBitmap
 
 
-@OptIn(ExperimentalFoundationApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun CommentsScreen(
     newsId: Id?,
@@ -94,7 +94,9 @@ fun CommentScreenHeader(item: Item?) {
                 ) {
                     Text(item.by ?: "no author", style = typography.labelSmall)
                     Text(item.title ?: "no title", style = typography.titleMedium)
-                    Text(item.url?.host ?: "url", style = typography.bodySmall)
+                    item.url?.host?.let{
+                        Text(it, style = typography.bodySmall)
+                    }
                 }
                 if (item.url != null) {
 

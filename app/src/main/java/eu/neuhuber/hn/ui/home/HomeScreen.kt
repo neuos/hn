@@ -154,10 +154,12 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
             Column(
                 Modifier
                     .weight(1f)
-                    .clickable(enabled = item.url != null) {
-                        val icon = createBitmap(context, R.drawable.ic_baseline_question_answer_24)
-
-                        openStory(context, item, colors, icon)
+                    .clickable {
+                        if (item.url == null) navigateToComments(item.id)
+                        else {
+                            val icon = createBitmap(context, R.drawable.ic_baseline_question_answer_24)
+                            openStory(context, item, colors, icon)
+                        }
                     }
                     .padding(4.dp)
                     .fillMaxHeight()) {
