@@ -40,6 +40,7 @@ import eu.neuhuber.hn.MainActivity
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
+import eu.neuhuber.hn.ui.theme.navbar
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.createBitmap
 import eu.neuhuber.hn.ui.util.toLocalString
@@ -62,7 +63,7 @@ fun HomeScreen(
 
     Scaffold(
         bottomBar = {
-            NavigationBar() {
+            NavigationBar {
                 SelectedList.values().forEach {
                     NavigationBarItem(
                         selected = selected == it,
@@ -203,13 +204,13 @@ fun openStory(context: Context, item: Item, colors: ColorScheme, icon: Bitmap) {
         } ?: throw Exception("Intent not found")
 
         val colorScheme = CustomTabColorSchemeParams.Builder()
-            .setToolbarColor(colors.primary.toArgb())
-            .setSecondaryToolbarColor(colors.secondary.toArgb())
+            .setToolbarColor(colors.background.toArgb())
+            .setNavigationBarColor(colors.navbar.toArgb())
             .build()
 
         val intent = CustomTabsIntent.Builder()
             .setDefaultColorSchemeParams(colorScheme)
-            .setActionButton(icon, "Show Comments", deepLinkPendingIntent, false)
+            .setActionButton(icon, "Show Comments", deepLinkPendingIntent, true)
             .build();
         intent.launchUrl(context, uri)
         Log.i("openStory", uri.toString())
