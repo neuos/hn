@@ -51,7 +51,11 @@ fun CommentsScreen(
                 item {
                     CommentScreenHeader(loadComment.item)
                     loadComment.item?.text?.let {
-                        CommentCard(text = it, author = loadComment.item?.by, time = loadComment.item?.time)
+                        CommentCard(
+                            text = it,
+                            author = loadComment.item?.by,
+                            time = loadComment.item?.time
+                        )
                     }
                 }
                 items(loadComment.children) {
@@ -93,7 +97,7 @@ fun CommentScreenHeader(item: Item?) {
                 ) {
                     Text(item.by ?: "no author", style = typography.labelSmall)
                     Text(item.title ?: "no title", style = typography.titleMedium)
-                    item.url?.host?.let{
+                    item.url?.host?.let {
                         Text(it, style = typography.bodySmall)
                     }
                 }
@@ -117,12 +121,11 @@ fun CommentScreenHeader(item: Item?) {
                         Alignment.CenterHorizontally
                     ) {
                         val contentDescription = "open in browser"
-                        Favicon(uri = item.url, contentDescription) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_open_in_browser_24),
-                                contentDescription = contentDescription
-                            )
-                        }
+                        Favicon(
+                            uri = item.url,
+                            contentDescription,
+                            painterResource(id = R.drawable.ic_baseline_open_in_browser_24)
+                        )
                     }
                 }
             }
@@ -202,9 +205,15 @@ fun CommentCard(
             )
             {
                 Column {
-                    author?.let {  Text("$it - ${time?.toLocalString()}", style = typography.labelSmall) }
-                    if(text!=null) { HtmlText(text = text) }
-                    else{
+                    author?.let {
+                        Text(
+                            "$it - ${time?.toLocalString()}",
+                            style = typography.labelSmall
+                        )
+                    }
+                    if (text != null) {
+                        HtmlText(text = text)
+                    } else {
                         Text(text = "deleted", textDecoration = TextDecoration.LineThrough)
                     }
                 }

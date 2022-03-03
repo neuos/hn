@@ -1,11 +1,9 @@
 package eu.neuhuber.hn.ui.util
 
+import java.text.DateFormat
 import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import java.util.*
 
-fun Instant.toLocalString(): String = DateTimeFormatter
-    .ofLocalizedDateTime(FormatStyle.SHORT)
-    .withZone(ZoneId.systemDefault())
-    .format(this)
+fun Instant.toLocalString(): String = DateFormat
+    .getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, Locale.getDefault())
+    .format(Date.from(this))

@@ -1,42 +1,30 @@
 package eu.neuhuber.hn.ui.util
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.net.Uri
-import android.util.Log
-import androidx.compose.animation.Crossfade
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.google.accompanist.coil.rememberCoilPainter
-import com.google.accompanist.imageloading.ImageLoadState
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 
 @Composable
 fun Favicon(
     uri: Uri,
     contentDescription: String? = null,
-    placeHolder: @Composable () -> Unit
+    placeHolder: Painter
 ) {
     val faviconUri = faviconUrl(uri)
 
-    val painter = rememberCoilPainter(faviconUri)
-
-    Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-        Image(
-            painter = painter,
-            contentDescription = contentDescription,
-            Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-        )
-        Crossfade(targetState = painter.loadState) {
-            if (it !is ImageLoadState.Success) placeHolder()
-        }
-    }
+    AsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(faviconUri)
+            .crossfade(true)
+            .build(),
+        placeholder = placeHolder,
+        contentDescription = contentDescription,
+        contentScale = ContentScale.Crop
+    )
 }
 
 private fun faviconUrl(uri: Uri) = Uri.Builder()
