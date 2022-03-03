@@ -211,7 +211,7 @@ fun openStory(context: Context, item: Item, colors: ColorScheme, icon: Bitmap) {
         val intent = CustomTabsIntent.Builder()
             .setDefaultColorSchemeParams(colorScheme)
             .setActionButton(icon, "Show Comments", deepLinkPendingIntent, true)
-            .build();
+            .build()
         intent.launchUrl(context, uri)
         Log.i("openStory", uri.toString())
     }
@@ -225,7 +225,7 @@ fun StoryPreview() {
     Story(
         item = Item(
             id = 0,
-            title = "Something very newsworthy has happend again",
+            title = "Something very newsworthy has happened again",
             score = 446,
             by = "neuos",
             descendants = 384,
@@ -240,7 +240,7 @@ fun StoryPreviewDark() {
     Story(
         item = Item(
             id = 0,
-            title = "Something very newsworthy has happend again",
+            title = "Something very newsworthy has happened again",
             score = 446,
             by = "neuos",
             descendants = 384,

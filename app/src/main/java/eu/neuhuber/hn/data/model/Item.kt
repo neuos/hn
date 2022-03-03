@@ -1,13 +1,8 @@
 package eu.neuhuber.hn.data.model
 
 import android.net.Uri
-import android.util.Log
 import eu.neuhuber.hn.data.EpochSecondInstantSerializer
 import eu.neuhuber.hn.data.UriSerializer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
 import kotlinx.serialization.Serializable
 import java.time.Instant
 

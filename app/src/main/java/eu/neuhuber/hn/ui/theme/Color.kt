@@ -8,7 +8,6 @@ import eu.neuhuber.hn.R
 
 enum class ResourceColor(val id: Int) {
     HNOrange(R.color.hn_orange),
-    HNOrangeDark(R.color.hn_orange_dark),
     HNOrangeLight(R.color.hn_orange_light),
     HNGrey(R.color.hn_grey),
     ;

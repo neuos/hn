@@ -104,7 +104,7 @@ fun CommentScreenHeader(item: Item?) {
                 if (item.url != null) {
 
                     val context = LocalContext.current
-                    val colors = androidx.compose.material3.MaterialTheme.colorScheme
+                    val colors = MaterialTheme.colorScheme
 
                     Column(
                         modifier = Modifier

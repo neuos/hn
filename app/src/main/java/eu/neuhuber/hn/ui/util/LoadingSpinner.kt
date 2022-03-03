@@ -1,4 +1,4 @@
-package eu.neuhuber.hn.ui
+package eu.neuhuber.hn.ui.util
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

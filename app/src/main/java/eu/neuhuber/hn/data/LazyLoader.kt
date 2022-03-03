@@ -11,7 +11,7 @@ class LazyLoader<K, V>(
     scope: CoroutineScope,
     private val load: suspend (K) -> Result<V>
 ) {
-    private val sem = Semaphore(1);
+    private val sem = Semaphore(1)
     private val queue = hashSetOf<K>()
     private val map = mutableStateMapOf<K, V>()
     private val loaderScope : CoroutineScope = CoroutineScope(scope.coroutineContext)

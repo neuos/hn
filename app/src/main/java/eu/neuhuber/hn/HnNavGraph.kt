@@ -57,7 +57,7 @@ fun HnNavGraph(
                 uriPattern =
                     "eu.neuhuber.hn://${MainDestinations.COMMENTS_ROUTE}/{$STORY_ID_ARGUMENT}"
             },
-                // TODO: make app return to source of link on back press instead of return to homescreen
+                // TODO: make app return to source of link on back press instead of return to home screen
                 navDeepLink {
                     uriPattern = "https://news.ycombinator.com/item?id={$STORY_ID_ARGUMENT}"
                     this.action

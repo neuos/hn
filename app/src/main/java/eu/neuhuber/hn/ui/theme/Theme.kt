@@ -29,7 +29,7 @@ fun hnLightColorScheme() = lightColorScheme(
 )
 
 @Composable
-fun HnTheme(isDark: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
+fun HnTheme(isDark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colorScheme = if (dynamic) {
         val context = LocalContext.current
         if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)

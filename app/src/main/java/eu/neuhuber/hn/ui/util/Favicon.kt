@@ -1,14 +1,12 @@
 package eu.neuhuber.hn.ui.util
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import eu.neuhuber.hn.R
@@ -39,8 +37,8 @@ private fun faviconUrl(uri: Uri) = Uri.Builder()
     .path("favicon.ico").build().toString()
 
 
-@Preview()
-@Composable()
+@Preview
+@Composable
 fun FaviconPreview(){
     Favicon(
         uri = Uri.parse("https://uibk.ac.at"),
