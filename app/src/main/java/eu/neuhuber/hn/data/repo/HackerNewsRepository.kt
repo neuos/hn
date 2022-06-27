@@ -4,13 +4,15 @@ import android.util.Log
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.android.*
-import io.ktor.client.features.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.logging.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
-
+import io.ktor.serialization.kotlinx.json.*
 
 object HackerNewsRepository : NewsRepository {
     private val client = HttpClient(Android) {
@@ -19,7 +21,9 @@ object HackerNewsRepository : NewsRepository {
             url { protocol = URLProtocol.HTTPS }
             host = "hacker-news.firebaseio.com"
         }
-        install(JsonFeature)
+        install(ContentNegotiation) {
+            json()
+        }
         install(Logging)
         install(UserAgent) {
             agent = "ktor - eu.neuhuber.hn"
@@ -28,7 +32,7 @@ object HackerNewsRepository : NewsRepository {
 
     private suspend inline fun <reified T> HttpClient.tryGet(path: String): Result<T> = try {
         Log.d(javaClass.name, "get request to $path")
-        Result.success(get(path = path))
+        Result.success(get(urlString = path).body())
     } catch (e: Throwable) {
         Log.e(javaClass.name, e.message!!)
         Result.failure(e)
