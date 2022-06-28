@@ -1,6 +1,8 @@
 package eu.neuhuber.hn.ui.home
 
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.app.PendingIntent.FLAG_UPDATE_CURRENT
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -197,24 +199,26 @@ fun openStory(context: Context, item: Item, colors: ColorScheme, icon: Bitmap) {
     item.url?.let { uri ->
         context.resources
 
-        val deepLinkIntent = Intent(
+        val showCommentsIntent = Intent(
             Intent.ACTION_VIEW,
             "eu.neuhuber.hn://comments/${item.id}".toUri(),
             context,
             MainActivity::class.java
         )
 
-        val deepLinkPendingIntent: PendingIntent = TaskStackBuilder.create(context).run {
-            addNextIntentWithParentStack(deepLinkIntent)
-            getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+        val showCommentsPendingIntent: PendingIntent = TaskStackBuilder.create(context).run {
+            addNextIntentWithParentStack(showCommentsIntent)
+            getPendingIntent(0, FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE)
         } ?: throw Exception("Intent not found")
 
         val colorScheme =
             CustomTabColorSchemeParams.Builder().setToolbarColor(colors.background.toArgb())
                 .setNavigationBarColor(colors.navbar.toArgb()).build()
 
-        val intent = CustomTabsIntent.Builder().setDefaultColorSchemeParams(colorScheme)
-            .setActionButton(icon, "Show Comments", deepLinkPendingIntent, true).build()
+        val intent = CustomTabsIntent.Builder()
+            .setDefaultColorSchemeParams(colorScheme)
+            .setActionButton(icon, "Show Comments", showCommentsPendingIntent, true)
+            .build()
         intent.launchUrl(context, uri)
         Log.i("openStory", uri.toString())
     }
