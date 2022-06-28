@@ -1,5 +1,6 @@
 package eu.neuhuber.hn.ui.theme
 
+import android.annotation.TargetApi
 import android.os.Build
 import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -22,6 +23,14 @@ fun hnDarkColorScheme() = darkColorScheme(
     primary = HNOrangeLight.load(),
 )
 
+
+@TargetApi(Build.VERSION_CODES.S)
+@Composable
+fun dynamicColorScheme(dark: Boolean): ColorScheme {
+    return if (dark) dynamicDarkColorScheme(LocalContext.current)
+    else dynamicLightColorScheme(LocalContext.current)
+}
+
 @Composable
 fun hnLightColorScheme() = lightColorScheme(
     primary = HNOrange.load(),
@@ -31,8 +40,7 @@ fun hnLightColorScheme() = lightColorScheme(
 @Composable
 fun HnTheme(isDark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colorScheme = if (dynamic) {
-        val context = LocalContext.current
-        if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        dynamicColorScheme(isDark)
     } else {
         if (isDark) hnDarkColorScheme() else hnLightColorScheme()
     }
@@ -72,6 +80,7 @@ val ColorScheme.navbar: Color
             val alpha = ((4.5f * ln(elevation.value + 1)) + 2f) / 100f
             return primary.copy(alpha = alpha).compositeOver(surface)
         }
+
         val defaultNavbarElevation = 3.dp
         return surfaceColorAtElevation(defaultNavbarElevation)
     }

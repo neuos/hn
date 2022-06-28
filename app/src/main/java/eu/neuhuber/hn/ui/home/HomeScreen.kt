@@ -84,9 +84,12 @@ fun HomeScreen(
     }) {
         val storyIds = viewModel.storyIds.value
         val isRefreshing by viewModel.refresh.isRefreshing.collectAsState()
-        SwipeRefresh(state = rememberSwipeRefreshState(isRefreshing), onRefresh = {
-            viewModel.refresh()
-        }) {
+        SwipeRefresh(
+            state = rememberSwipeRefreshState(isRefreshing),
+            modifier = Modifier.padding(it),
+            onRefresh = {
+                viewModel.refresh()
+            }) {
             when {
                 viewModel.errorMessage != null -> Column(
                     Modifier
@@ -218,25 +221,10 @@ fun openStory(context: Context, item: Item, colors: ColorScheme, icon: Bitmap) {
 }
 
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, name = "Dark mode")
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, showBackground = true, name = "Light mode")
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, name = "Dark mode")
 @Composable
 fun StoryPreview() {
-    Story(
-        item = Item(
-            id = 0,
-            title = "Something very newsworthy has happened again",
-            score = 446,
-            by = "neuos",
-            descendants = 384,
-            url = Uri.parse("https://neuhuber.eu/news/1")
-        )
-    ) {}
-}
-
-@Preview
-@Composable
-fun StoryPreviewDark() {
     Story(
         item = Item(
             id = 0,
