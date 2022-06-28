@@ -12,7 +12,9 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -23,6 +25,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
@@ -44,60 +47,58 @@ import eu.neuhuber.hn.ui.theme.navbar
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.createBitmap
 import eu.neuhuber.hn.ui.util.toLocalString
+import kotlinx.coroutines.launch
 
 
 enum class SelectedList(val label: String, val icon: ImageVector) {
-    Top("Top", Icons.Filled.Home),
-    New("New", Icons.Filled.Notifications),
-    Best("Best", Icons.Filled.Star),
+    Top("Top", Icons.Filled.Home), New("New", Icons.Filled.Notifications), Best(
+        "Best",
+        Icons.Filled.Star
+    ),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    navigateToComments: (Id) -> Unit,
-    viewModel: HomeViewModel = viewModel()
+    navigateToComments: (Id) -> Unit, viewModel: HomeViewModel = viewModel()
 ) {
-
     val selected: SelectedList by viewModel.selected
+    val coroutineScope = rememberCoroutineScope()
+    val listState = rememberLazyListState()
 
-    Scaffold(
-        bottomBar = {
-            NavigationBar {
-                SelectedList.values().forEach {
-                    NavigationBarItem(
-                        selected = selected == it,
-                        onClick = { viewModel.select(it) },
-                        label = { Text(it.label) },
-                        icon = {
-                            Icon(it.icon, it.label)
-                        })
-                }
+    Scaffold(bottomBar = {
+        NavigationBar {
+            SelectedList.values().forEach {
+                NavigationBarItem(selected = selected == it, onClick = {
+                    val changed = viewModel.changeView(it)
+                    if (!changed) {
+                        coroutineScope.launch {
+                            listState.animateScrollToItem(0)
+                        }
+                    }
+                }, label = { Text(it.label) }, icon = {
+                    Icon(it.icon, it.label)
+                })
             }
         }
-
-    ) {
+    }) {
         val storyIds = viewModel.storyIds.value
         val isRefreshing by viewModel.refresh.isRefreshing.collectAsState()
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isRefreshing),
-            onRefresh = {
-                viewModel.refresh()
-            }) {
+        SwipeRefresh(state = rememberSwipeRefreshState(isRefreshing), onRefresh = {
+            viewModel.refresh()
+        }) {
             when {
-                viewModel.errorMessage != null ->
-                    Column(
-                        Modifier
-                            .verticalScroll(rememberScrollState())
-                            .fillMaxHeight()
-                    ) {
-                        Text(text = viewModel.errorMessage.toString())
-                    }
+                viewModel.errorMessage != null -> Column(
+                    Modifier
+                        .verticalScroll(rememberScrollState())
+                        .fillMaxHeight()
+                ) {
+                    Text(text = viewModel.errorMessage.toString())
+                }
                 storyIds == null -> {
                     Column { (1..10).map { StoryPlaceholder() } }
                 }
-                else ->
-                    StoryList(list = storyIds, navigateToComments, viewModel)
+                else -> StoryList(list = storyIds, navigateToComments, viewModel, listState)
             }
 
         }
@@ -109,9 +110,10 @@ fun HomeScreen(
 fun StoryList(
     list: List<Id>,
     navigateToComments: (Id) -> Unit,
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = viewModel(),
+    listState: LazyListState
 ) {
-    LazyColumn(Modifier.fillMaxHeight()) {
+    LazyColumn(Modifier.fillMaxHeight(), listState) {
         items(list) {
             val item = viewModel.loadStory(it)
             if (item == null) StoryPlaceholder()
@@ -158,7 +160,8 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
                     .clickable {
                         if (item.url == null) navigateToComments(item.id)
                         else {
-                            val icon = createBitmap(context, R.drawable.ic_baseline_question_answer_24)
+                            val icon =
+                                createBitmap(context, R.drawable.ic_baseline_question_answer_24)
                             openStory(context, item, colors, icon)
                         }
                     }
@@ -203,15 +206,12 @@ fun openStory(context: Context, item: Item, colors: ColorScheme, icon: Bitmap) {
             getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
         } ?: throw Exception("Intent not found")
 
-        val colorScheme = CustomTabColorSchemeParams.Builder()
-            .setToolbarColor(colors.background.toArgb())
-            .setNavigationBarColor(colors.navbar.toArgb())
-            .build()
+        val colorScheme =
+            CustomTabColorSchemeParams.Builder().setToolbarColor(colors.background.toArgb())
+                .setNavigationBarColor(colors.navbar.toArgb()).build()
 
-        val intent = CustomTabsIntent.Builder()
-            .setDefaultColorSchemeParams(colorScheme)
-            .setActionButton(icon, "Show Comments", deepLinkPendingIntent, true)
-            .build()
+        val intent = CustomTabsIntent.Builder().setDefaultColorSchemeParams(colorScheme)
+            .setActionButton(icon, "Show Comments", deepLinkPendingIntent, true).build()
         intent.launchUrl(context, uri)
         Log.i("openStory", uri.toString())
     }

@@ -27,20 +27,19 @@ class HomeViewModel : ViewModel() {
 
     val selected = mutableStateOf(SelectedList.Top)
 
-
     fun loadStory(id: Id): Item? = loader.loadValue(id)
 
     init {
         refresh()
     }
 
-    fun select(it: SelectedList) {
-        if (selected.value != it) {
-            selected.value = it
-            viewModelScope.launch {
-                loadIds()
-            }
+    fun changeView(it: SelectedList): Boolean {
+        if (selected.value == it) return false
+        selected.value = it
+        viewModelScope.launch {
+            loadIds()
         }
+        return true
     }
 
     private suspend fun loadIds() {
