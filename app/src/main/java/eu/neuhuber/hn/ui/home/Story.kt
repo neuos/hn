@@ -3,7 +3,6 @@ package eu.neuhuber.hn.ui.home
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
@@ -21,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
@@ -30,7 +28,8 @@ import eu.neuhuber.hn.MainActivity
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
-import eu.neuhuber.hn.ui.theme.PreviewTheme
+import eu.neuhuber.hn.ui.theme.ColoredTheme
+import eu.neuhuber.hn.ui.theme.HnPreview
 import eu.neuhuber.hn.ui.theme.navbar
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.createBitmap
@@ -151,11 +150,10 @@ fun openStory(context: Context, item: Item, colors: ColorScheme, icon: Bitmap) {
 }
 
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, showBackground = true, name = "Light")
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, name = "Dark")
+@HnPreview
 @Composable
 fun StoryPreview() {
-    PreviewTheme {
+    ColoredTheme {
         Story(
             item = Item(
                 id = 0,
@@ -170,11 +168,10 @@ fun StoryPreview() {
     }
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, name = "Light")
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, name = "Dark")
+@HnPreview
 @Composable
 fun StoryPlaceholderPreview() {
-    PreviewTheme {
+    ColoredTheme {
         StoryPlaceholder()
     }
 }

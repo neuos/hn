@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
@@ -29,6 +28,7 @@ import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
 import eu.neuhuber.hn.ui.home.openStory
+import eu.neuhuber.hn.ui.theme.HnPreview
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.Favicon
 import eu.neuhuber.hn.ui.util.createBitmap
@@ -36,7 +36,6 @@ import eu.neuhuber.hn.ui.util.toLocalString
 import java.time.Instant
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentsScreen(
     newsId: Id?,
@@ -63,6 +62,37 @@ fun CommentsScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = viewModel()) {
+    val expanded = remember { mutableStateOf(depth < 2) }
+
+    val item = viewModel.loadComment(id)?.item
+
+    if (item == null)
+        CommentPlaceHolder()
+    else {
+        CommentCard(
+            text = item.text,
+            childCount = item.kids?.size ?: 0,
+            depth = depth,
+            isExpanded = expanded.value,
+            author = item.by,
+            time = item.time
+        ) {
+            expanded.value = !expanded.value
+        }
+
+        AnimatedVisibility(visible = expanded.value) {
+            Column {
+                item.kids?.forEach {
+                    CommentNode(it, depth + 1)
+                }
+            }
+        }
+
     }
 }
 
@@ -134,39 +164,7 @@ fun CommentScreenHeader(item: Item?) {
 }
 
 
-@Composable
-fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = viewModel()) {
-    val expanded = remember { mutableStateOf(depth < 2) }
-
-    val item = viewModel.loadComment(id)?.item
-
-    if (item == null)
-        CommentPlaceHolder()
-    else {
-        CommentCard(
-            text = item.text,
-            childCount = item.kids?.size ?: 0,
-            depth = depth,
-            isExpanded = expanded.value,
-            author = item.by,
-            time = item.time
-        ) {
-            expanded.value = !expanded.value
-        }
-
-        AnimatedVisibility(visible = expanded.value) {
-            Column {
-                item.kids?.forEach {
-                    CommentNode(it, depth + 1)
-                }
-            }
-        }
-
-    }
-}
-
-
-@Preview
+@HnPreview
 @Composable
 fun CommentPlaceHolder() = CardPlaceholder(height = 64.dp)
 

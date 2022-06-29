@@ -8,10 +8,10 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import eu.neuhuber.hn.ui.theme.HnPreview
 
 @Composable
-@Preview
+@HnPreview
 fun LoadingSpinner() {
     Column(
         modifier = Modifier

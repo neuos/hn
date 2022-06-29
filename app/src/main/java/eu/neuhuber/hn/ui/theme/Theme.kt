@@ -1,18 +1,16 @@
 package eu.neuhuber.hn.ui.theme
 
 import android.annotation.TargetApi
+import android.content.res.Configuration
 import android.os.Build
-import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -26,27 +24,34 @@ fun hnDarkColorScheme() = darkColorScheme(
     primary = HNOrangeLight.load(),
 )
 
-
-@TargetApi(Build.VERSION_CODES.S)
-@Composable
-fun dynamicColorScheme(dark: Boolean): ColorScheme {
-    return if (dark) dynamicDarkColorScheme(LocalContext.current)
-    else dynamicLightColorScheme(LocalContext.current)
-}
-
 @Composable
 fun hnLightColorScheme() = lightColorScheme(
     primary = HNOrange.load(),
     surface = HNGrey.load()
 )
 
+@TargetApi(Build.VERSION_CODES.S)
 @Composable
-fun HnTheme(isDark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colorScheme = if (dynamic) {
-        dynamicColorScheme(isDark)
-    } else {
-        if (isDark) hnDarkColorScheme() else hnLightColorScheme()
-    }
+fun dynamicColorScheme(dark: Boolean): ColorScheme = when {
+    dark -> dynamicDarkColorScheme(LocalContext.current)
+    else -> dynamicLightColorScheme(LocalContext.current)
+}
+
+@Composable
+fun staticColorScheme(dark: Boolean): ColorScheme = when {
+    dark -> hnDarkColorScheme()
+    else -> hnLightColorScheme()
+}
+
+@Composable
+fun hnColorScheme() = when {
+    dynamic -> dynamicColorScheme(isSystemInDarkTheme())
+    else -> staticColorScheme(isSystemInDarkTheme())
+}
+
+@Composable
+fun HnTheme(content: @Composable () -> Unit) {
+    val colorScheme = hnColorScheme()
 
     MaterialTheme(
         colorScheme = colorScheme,
@@ -55,22 +60,15 @@ fun HnTheme(isDark: Boolean = isSystemInDarkTheme(), content: @Composable () -> 
     )
 
     val systemUiController = rememberSystemUiController()
-
-    Log.d("HnTheme", "")
-
     SideEffect {
-        // dark icons if we're in light theme
         systemUiController.setStatusBarColor(
             color = colorScheme.background,
         )
         systemUiController.setNavigationBarColor(
             color = colorScheme.navbar,
         )
-
-        // setStatusBarsColor() and setNavigationBarColor() also exist
     }
 }
-
 
 val ColorScheme.navbar: Color
     get() {
@@ -89,20 +87,17 @@ val ColorScheme.navbar: Color
 
 
 @Composable
-fun PreviewTheme(content: @Composable () -> Unit) {
-    val isDark = isSystemInDarkTheme()
-    val colorScheme = if (dynamic) {
-        dynamicColorScheme(isDark)
-    } else {
-        if (isDark) hnDarkColorScheme() else hnLightColorScheme()
-    }
-    MaterialTheme(
-        colorScheme = colorScheme,
-        content = {
-            Box(Modifier.background(colorScheme.background)) {
-                content()
-            }
-        },
-        typography = Typography
-    )
-}
+fun ColoredTheme(content: @Composable () -> Unit) = MaterialTheme(
+    colorScheme = hnColorScheme(),
+    typography = Typography,
+    content = content
+)
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, showBackground = true, name = "Light")
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, name = "Dark")
+@Retention(AnnotationRetention.SOURCE)
+@Target(
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.FUNCTION
+)
+annotation class HnPreview

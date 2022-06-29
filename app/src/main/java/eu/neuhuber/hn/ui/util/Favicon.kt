@@ -6,10 +6,10 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import eu.neuhuber.hn.R
+import eu.neuhuber.hn.ui.theme.HnPreview
 
 @Composable
 fun Favicon(
@@ -37,9 +37,9 @@ private fun faviconUrl(uri: Uri) = Uri.Builder()
     .path("favicon.ico").build().toString()
 
 
-@Preview
+@HnPreview
 @Composable
-fun FaviconPreview(){
+fun FaviconPreview() {
     Favicon(
         uri = Uri.parse("https://uibk.ac.at"),
         placeholder = painterResource(id = R.drawable.ic_baseline_open_in_browser_24)
