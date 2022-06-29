@@ -12,7 +12,7 @@ android {
         applicationId "eu.neuhuber.hn"
         minSdk 26
         targetSdk 32
-        versionCode System.getenv("VERSION_CODE").isInteger() ? System.getenv("VERSION_CODE").toInteger() : 1
+        versionCode System.getenv("VERSION_CODE")?.toInteger() ?: 1
         versionName "1.0.$versionCode"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -78,4 +78,10 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+    }
 }

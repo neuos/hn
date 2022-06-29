@@ -3,10 +3,13 @@ package eu.neuhuber.hn.ui.theme
 import android.annotation.TargetApi
 import android.os.Build
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.LocalContext
@@ -52,7 +55,6 @@ fun HnTheme(isDark: Boolean = isSystemInDarkTheme(), content: @Composable () -> 
     )
 
     val systemUiController = rememberSystemUiController()
-    val systemBarColor = colorScheme.background
 
     Log.d("HnTheme", "")
 
@@ -85,3 +87,22 @@ val ColorScheme.navbar: Color
         return surfaceColorAtElevation(defaultNavbarElevation)
     }
 
+
+@Composable
+fun PreviewTheme(content: @Composable () -> Unit) {
+    val isDark = isSystemInDarkTheme()
+    val colorScheme = if (dynamic) {
+        dynamicColorScheme(isDark)
+    } else {
+        if (isDark) hnDarkColorScheme() else hnLightColorScheme()
+    }
+    MaterialTheme(
+        colorScheme = colorScheme,
+        content = {
+            Box(Modifier.background(colorScheme.background)) {
+                content()
+            }
+        },
+        typography = Typography
+    )
+}
