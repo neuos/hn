@@ -28,6 +28,7 @@ import eu.neuhuber.hn.MainActivity
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
+import eu.neuhuber.hn.ui.newsList.NewsListViewModel
 import eu.neuhuber.hn.ui.theme.ColoredTheme
 import eu.neuhuber.hn.ui.theme.HnPreview
 import eu.neuhuber.hn.ui.theme.navbar
@@ -41,7 +42,7 @@ import java.time.Instant
 fun StoryList(
     list: List<Id>,
     navigateToComments: (Id) -> Unit,
-    viewModel: HomeViewModel = viewModel(),
+    viewModel: NewsListViewModel = viewModel(),
     listState: LazyListState
 ) {
     LazyColumn(Modifier.fillMaxHeight(), listState) {
