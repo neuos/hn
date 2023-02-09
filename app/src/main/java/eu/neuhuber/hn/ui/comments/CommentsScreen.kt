@@ -224,8 +224,7 @@ fun CommentCard(
                     Modifier
                         .fillMaxWidth()
                         .clickable(
-                            enabled = expandable,
-                            "This is the label",
+                            onClickLabel = "This is the label",
                             onClick = toggleExpand
                         )
                         .padding(vertical = 8.dp), horizontalArrangement = Arrangement.Center
