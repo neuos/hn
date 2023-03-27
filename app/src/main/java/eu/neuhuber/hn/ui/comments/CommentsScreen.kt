@@ -2,7 +2,6 @@ package eu.neuhuber.hn.ui.comments
 
 import android.net.Uri
 import android.text.method.LinkMovementMethod
-import android.widget.TextView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.material.textview.MaterialTextView
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
@@ -305,11 +305,12 @@ fun CommentCard(
 fun HtmlText(text: String) {
     val context = LocalContext.current
     val linkColor = MaterialTheme.colorScheme.primary
+    val fontSize = MaterialTheme.typography.bodyMedium.fontSize
 
     AndroidView(factory = {
-        TextView(context).apply {
+        MaterialTextView(context).apply {
             setText(HtmlCompat.fromHtml(text, HtmlCompat.FROM_HTML_MODE_COMPACT))
-            textSize = 16f
+            textSize = fontSize.value
             setLinkTextColor(linkColor.toArgb())
             movementMethod = LinkMovementMethod.getInstance()
         }
