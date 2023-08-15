@@ -1,5 +1,6 @@
 package eu.neuhuber.hn.ui.comments
 
+import android.net.Uri
 import android.text.method.LinkMovementMethod
 import android.widget.TextView
 import androidx.compose.animation.AnimatedVisibility
@@ -173,6 +174,20 @@ fun CommentScreenHeader(item: Item?) {
 @HnPreview
 @Composable
 fun CommentPlaceHolder() = CardPlaceholder(height = 64.dp)
+
+@HnPreview
+@Composable
+fun CommentScreenHeaderPlaceholder() = CommentScreenHeader(
+    Item(
+        id = 0,
+        title = "Something very newsworthy has happened again",
+        score = 123456,
+        by = "neuos",
+        descendants = 7890123,
+        url = Uri.parse("https://neuhuber.eu/news/1"),
+        time = Instant.now(),
+    )
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,33 +1,32 @@
 package eu.neuhuber.hn.ui.util
 
 import android.net.Uri
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import eu.neuhuber.hn.R
 import eu.neuhuber.hn.ui.theme.HnPreview
+import io.kamel.image.KamelImage
+import io.kamel.image.asyncPainterResource
 
 @Composable
 fun Favicon(
-    uri: Uri,
-    contentDescription: String? = null,
-    placeholder: Painter
+    uri: Uri, contentDescription: String? = null, placeholder: Painter? = null
 ) {
     val faviconUri = faviconUrl(uri)
 
-    AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(faviconUri)
-            .crossfade(true)
-            .build(),
-        placeholder = placeholder,
-        error = placeholder,
+    val placeholderIcon: @Composable (BoxScope.(Any) -> Unit)? =
+        if (placeholder == null) null else ({
+            Icon(painter = placeholder, contentDescription = contentDescription)
+        })
+
+    KamelImage(
+        asyncPainterResource(data = faviconUri),
         contentDescription = contentDescription,
-        contentScale = ContentScale.Crop,
+        onLoading = placeholderIcon,
+        onFailure = placeholderIcon,
+        contentScale = ContentScale.Fit,
     )
 }
 
@@ -41,7 +40,6 @@ private fun faviconUrl(uri: Uri) = Uri.Builder()
 @Composable
 fun FaviconPreview() {
     Favicon(
-        uri = Uri.parse("https://uibk.ac.at"),
-        placeholder = painterResource(id = R.drawable.ic_baseline_open_in_browser_24)
+        uri = Uri.parse("https://uibk.ac.at")
     )
 }
