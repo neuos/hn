@@ -8,12 +8,18 @@ import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
 import eu.neuhuber.hn.data.repo.HackerNewsRepository
 import eu.neuhuber.hn.data.repo.NewsRepository
+import eu.neuhuber.hn.ui.util.Refresher
 
 class CommentsViewModel : ViewModel() {
     private val newsRepository: NewsRepository = HackerNewsRepository
     private var errorMessage: String? = null
 
-    fun loadComment(id:Id): LazyCommentTree? = loader.loadValue(id)
+    fun loadComment(id: Id): LazyCommentTree? = loader.loadValue(id)
+
+    val refresh = Refresher<Id>(viewModelScope) {
+        loader.clear()
+        loader.loadValue(it)
+    }
 
     private val loader = LazyLoader<Id, LazyCommentTree>(viewModelScope) { id ->
         loadLazyCommentTree(id)

@@ -10,6 +10,7 @@ import eu.neuhuber.hn.data.model.Item
 import eu.neuhuber.hn.data.repo.HackerNewsRepository
 import eu.neuhuber.hn.data.repo.NewsRepository
 import eu.neuhuber.hn.ui.util.Refresher
+import eu.neuhuber.hn.ui.util.invoke
 
 sealed class NewsListViewModel : ViewModel() {
     protected val newsRepository: NewsRepository = HackerNewsRepository
@@ -18,7 +19,7 @@ sealed class NewsListViewModel : ViewModel() {
 
     var errorMessage: String? = null
 
-    val refresh = Refresher(viewModelScope) {
+    val refresh = Refresher<Unit>(viewModelScope) {
         loadIds()
     }
 

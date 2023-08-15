@@ -12,6 +12,8 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -24,10 +26,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
-import eu.neuhuber.hn.ui.home.openStory
+import eu.neuhuber.hn.ui.newsList.openStory
 import eu.neuhuber.hn.ui.theme.HnPreview
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.Favicon
@@ -38,29 +42,36 @@ import java.time.Instant
 
 @Composable
 fun CommentsScreen(
-    newsId: Id?,
-    viewModel: CommentsViewModel = viewModel()
+    newsId: Id?, viewModel: CommentsViewModel = viewModel()
 ) {
+    val isRefreshing by viewModel.refresh.isRefreshing.collectAsState()
     if (newsId == null) Text(text = "Invalid News Item")
     else {
-        val loadComment: LazyCommentTree? = viewModel.loadComment(newsId)
-        if (loadComment == null) CommentPlaceHolder()
-        else {
-            LazyColumn(Modifier.fillMaxHeight()) {
-                item {
-                    CommentScreenHeader(loadComment.item)
-                    loadComment.item?.text?.let {
-                        CommentCard(
-                            text = it,
-                            author = loadComment.item?.by,
-                            time = loadComment.item?.time
-                        )
-                    }
-                }
-                items(loadComment.children) {
-                    CommentNode(id = it.id)
-                }
+        SwipeRefresh(state = rememberSwipeRefreshState(isRefreshing), onRefresh = {
+            viewModel.refresh(newsId)
+        }) {
+            val loadComment: LazyCommentTree? = viewModel.loadComment(newsId)
+            if (loadComment == null) CommentPlaceHolder()
+            else {
+                CommentsColumn(loadComment)
             }
+        }
+    }
+}
+
+@Composable
+private fun CommentsColumn(loadComment: LazyCommentTree) {
+    LazyColumn(Modifier.fillMaxHeight()) {
+        item {
+            CommentScreenHeader(loadComment.item)
+            loadComment.item?.text?.let {
+                CommentCard(
+                    text = it, author = loadComment.item?.by, time = loadComment.item?.time
+                )
+            }
+        }
+        items(loadComment.children) {
+            CommentNode(id = it.id)
         }
     }
 }
@@ -71,8 +82,7 @@ fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = viewModel
 
     val item = viewModel.loadComment(id)?.item
 
-    if (item == null)
-        CommentPlaceHolder()
+    if (item == null) CommentPlaceHolder()
     else {
         CommentCard(
             text = item.text,
@@ -136,20 +146,16 @@ fun CommentScreenHeader(item: Item?) {
                     val context = LocalContext.current
                     val colors = MaterialTheme.colorScheme
 
-                    Column(
-                        modifier = Modifier
-                            .width(40.dp)
-                            .defaultMinSize(minHeight = 64.dp)
-                            .fillMaxHeight()
-                            .clickable {
-                                val icon =
-                                    createBitmap(context, R.drawable.ic_baseline_question_answer_24)
-                                openStory(context, item, colors, icon)
-                            }
-                            .padding(8.dp),
-                        Arrangement.Center,
-                        Alignment.CenterHorizontally
-                    ) {
+                    Column(modifier = Modifier
+                        .width(40.dp)
+                        .defaultMinSize(minHeight = 64.dp)
+                        .fillMaxHeight()
+                        .clickable {
+                            val icon =
+                                createBitmap(context, R.drawable.ic_baseline_question_answer_24)
+                            openStory(context, item, colors, icon)
+                        }
+                        .padding(8.dp), Arrangement.Center, Alignment.CenterHorizontally) {
                         val contentDescription = "open in browser"
                         Favicon(
                             uri = item.url,
@@ -187,26 +193,19 @@ fun CommentCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(
-                top = if (depth == 0) 8.dp else 4.dp,
-                start = ((depth + 1) * 4).dp,
-                end = 4.dp
+                top = if (depth == 0) 8.dp else 4.dp, start = ((depth + 1) * 4).dp, end = 4.dp
             ),
     ) {
         Column {
             Box(
                 modifier = Modifier.padding(
-                    top = 8.dp,
-                    start = 8.dp,
-                    end = 8.dp,
-                    bottom = if (expandable) 0.dp else 8.dp
+                    top = 8.dp, start = 8.dp, end = 8.dp, bottom = if (expandable) 0.dp else 8.dp
                 )
-            )
-            {
+            ) {
                 Column {
                     author?.let {
                         Text(
-                            "$it - ${time?.toLocalString()}",
-                            style = typography.labelSmall
+                            "$it - ${time?.toLocalString()}", style = typography.labelSmall
                         )
                     }
                     if (text != null) {
@@ -224,16 +223,16 @@ fun CommentCard(
                     Modifier
                         .fillMaxWidth()
                         .clickable(
-                            onClickLabel = "This is the label",
-                            onClick = toggleExpand
+                            onClickLabel = "This is the label", onClick = toggleExpand
                         )
                         .padding(vertical = 8.dp), horizontalArrangement = Arrangement.Center
                 ) {
                     Text("$childCount Comments", style = typography.labelLarge)
-                    if (isExpanded)
-                        Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "collapse")
-                    else
-                        Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "expand")
+                    if (isExpanded) Icon(
+                        Icons.Filled.KeyboardArrowUp,
+                        contentDescription = "collapse"
+                    )
+                    else Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "expand")
 
                 }
             }

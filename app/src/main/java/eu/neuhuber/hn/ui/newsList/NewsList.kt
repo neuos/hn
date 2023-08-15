@@ -16,8 +16,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.ui.home.ListType
-import eu.neuhuber.hn.ui.home.StoryList
-import eu.neuhuber.hn.ui.home.StoryPlaceholder
+import eu.neuhuber.hn.ui.util.invoke
 import kotlinx.coroutines.channels.Channel
 
 @Composable
@@ -54,9 +53,11 @@ fun NewsList(
             ) {
                 Text(text = viewModel.errorMessage.toString())
             }
+
             storyIds == null -> {
                 Column { (1..10).map { StoryPlaceholder() } }
             }
+
             else -> StoryList(list = storyIds, navigateToComments, viewModel, listState)
         }
     }

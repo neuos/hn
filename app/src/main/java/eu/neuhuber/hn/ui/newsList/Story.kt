@@ -1,4 +1,4 @@
-package eu.neuhuber.hn.ui.home
+package eu.neuhuber.hn.ui.newsList
 
 import android.app.PendingIntent
 import android.content.Context
@@ -28,7 +28,6 @@ import eu.neuhuber.hn.MainActivity
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
-import eu.neuhuber.hn.ui.newsList.NewsListViewModel
 import eu.neuhuber.hn.ui.theme.ColoredTheme
 import eu.neuhuber.hn.ui.theme.HnPreview
 import eu.neuhuber.hn.ui.theme.navbar
@@ -116,13 +115,14 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
                     painter = painterResource(id = R.drawable.ic_baseline_question_answer_24),
                     contentDescription = null
                 )
-                AutoSizeText(text = (item.descendants ?: 0).toString(), style = typography.bodyMedium)
+                AutoSizeText(
+                    text = (item.descendants ?: 0).toString(),
+                    style = typography.bodyMedium
+                )
             }
         }
     }
 }
-
-
 
 
 fun openStory(context: Context, item: Item, colors: ColorScheme, icon: Bitmap) {
@@ -190,6 +190,7 @@ fun StoryPreviewLargeNumbers() {
         )
     }
 }
+
 @HnPreview
 @Composable
 fun StoryPreviewSmallNumbers() {
