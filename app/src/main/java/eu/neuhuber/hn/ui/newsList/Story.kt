@@ -32,6 +32,7 @@ import eu.neuhuber.hn.ui.newsList.NewsListViewModel
 import eu.neuhuber.hn.ui.theme.ColoredTheme
 import eu.neuhuber.hn.ui.theme.HnPreview
 import eu.neuhuber.hn.ui.theme.navbar
+import eu.neuhuber.hn.ui.util.AutoSizeText
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.createBitmap
 import eu.neuhuber.hn.ui.util.toLocalString
@@ -83,7 +84,7 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text((item.score ?: 0).toString(), style = typography.titleMedium)
+                AutoSizeText((item.score ?: 0).toString(), style = typography.titleMedium)
             }
             Column(
                 Modifier
@@ -104,7 +105,8 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
             }
             Column(
                 modifier = Modifier
-                    .defaultMinSize(minHeight = 64.dp, minWidth = 40.dp)
+                    .width(40.dp)
+                    .defaultMinSize(minHeight = 64.dp)
                     .fillMaxHeight()
                     .clickable { navigateToComments(item.id) },
                 Arrangement.Center,
@@ -114,11 +116,13 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
                     painter = painterResource(id = R.drawable.ic_baseline_question_answer_24),
                     contentDescription = null
                 )
-                Text(text = (item.descendants ?: 0).toString(), style = typography.bodyMedium)
+                AutoSizeText(text = (item.descendants ?: 0).toString(), style = typography.bodyMedium)
             }
         }
     }
 }
+
+
 
 
 fun openStory(context: Context, item: Item, colors: ColorScheme, icon: Bitmap) {
@@ -162,6 +166,41 @@ fun StoryPreview() {
                 score = 446,
                 by = "neuos",
                 descendants = 384,
+                url = Uri.parse("https://neuhuber.eu/news/1"),
+                time = Instant.now(),
+            ), navigateToComments = {}
+        )
+    }
+}
+
+@HnPreview
+@Composable
+fun StoryPreviewLargeNumbers() {
+    ColoredTheme {
+        Story(
+            item = Item(
+                id = 0,
+                title = "Something very newsworthy has happened again",
+                score = 123456,
+                by = "neuos",
+                descendants = 7890123,
+                url = Uri.parse("https://neuhuber.eu/news/1"),
+                time = Instant.now(),
+            ), navigateToComments = {}
+        )
+    }
+}
+@HnPreview
+@Composable
+fun StoryPreviewSmallNumbers() {
+    ColoredTheme {
+        Story(
+            item = Item(
+                id = 0,
+                title = "Something very newsworthy has happened again",
+                score = 1,
+                by = "neuos",
+                descendants = 2,
                 url = Uri.parse("https://neuhuber.eu/news/1"),
                 time = Instant.now(),
             ), navigateToComments = {}
