@@ -1,6 +1,6 @@
 package eu.neuhuber.hn.ui.util
 
-import android.util.Log
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,20 +12,22 @@ class Refresher<T>(private val scope: CoroutineScope, private val block: suspend
     private val sem = Semaphore(1)
     private val refreshingState = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = refreshingState.asStateFlow()
+    private val logger = Logger.withTag("Refresher")
 
     operator fun invoke(args: T) {
-        Log.i(javaClass.name, "refresh request")
+        logger.d( "refresh request")
         if (sem.tryAcquire()) {
-            Log.i(javaClass.name, "currently not refreshing")
+            logger.d("currently not refreshing")
             scope.launch {
                 refreshingState.emit(true)
-                Log.i(javaClass.name, "refreshing started")
+                logger.d( "refreshing started")
                 block(args)
                 refreshingState.emit(false)
-                Log.i(javaClass.name, "refreshing done")
+                logger.d( "refreshing done")
                 sem.release()
             }
         }
+        else logger.d( "already refreshing")
     }
 }
 

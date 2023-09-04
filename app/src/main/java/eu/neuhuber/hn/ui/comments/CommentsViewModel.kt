@@ -1,8 +1,11 @@
 package eu.neuhuber.hn.ui.comments
 
-import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import eu.neuhuber.hn.data.LazyLoader
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
@@ -12,7 +15,9 @@ import eu.neuhuber.hn.ui.util.Refresher
 
 class CommentsViewModel : ViewModel() {
     private val newsRepository: NewsRepository = HackerNewsRepository
-    private var errorMessage: String? = null
+    private val logger = Logger.withTag("CommentsViewModel")
+    var errorMessage by mutableStateOf<String?>(null)
+        private set
 
     fun loadComment(id: Id): LazyCommentTree? = loader.loadValue(id)
 
@@ -25,19 +30,22 @@ class CommentsViewModel : ViewModel() {
         loadLazyCommentTree(id)
     }
 
+    // TODO: single item error should show on the single element
     private suspend fun loadLazyCommentTree(id: Id): Result<LazyCommentTree> {
+        errorMessage = null
         val tree = LazyCommentTree(id)
         val item = newsRepository.getItem(id)
-        item.onFailure {
-            errorMessage = it.message
-            Log.e(javaClass.name, it.message.toString())
-            Log.e(javaClass.name, it.stackTraceToString())
-            return Result.failure(it)
-        }.onSuccess {
-            tree.item = it
-            return Result.success(tree)
-        }
-        return Result.failure(Exception())
+        return item.fold(
+            onSuccess = {
+                tree.item = it
+                Result.success(tree)
+            },
+            onFailure = {
+                errorMessage = it.message
+                logger.e(it) { "failed to load item $id" }
+                Result.failure(it)
+            }
+        )
     }
 
 }

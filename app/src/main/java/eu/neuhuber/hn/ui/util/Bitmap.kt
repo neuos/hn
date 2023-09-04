@@ -6,13 +6,11 @@ import android.graphics.Canvas
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.drawable.Drawable
-import android.util.Log
 import androidx.appcompat.content.res.AppCompatResources
-
+import co.touchlab.kermit.Logger
 
 fun createBitmap(context: Context, resourceId: Int): Bitmap {
-
-    Log.i("bitmap", "creating bitmap")
+    Logger.withTag("createBitmap").d { "creating bitmap from resource $resourceId" }
     val drawable: Drawable = AppCompatResources.getDrawable(context, resourceId)
         ?: throw Exception("could not find resource with id $resourceId")
     val canvas = Canvas()
@@ -25,7 +23,7 @@ fun createBitmap(context: Context, resourceId: Int): Bitmap {
     drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
     drawable.colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) })
     drawable.draw(canvas)
-    Log.i("bitmap", "bitmap created")
+    Logger.withTag("createBitmap").d { "bitmap created" }
 
     return bitmap
 }

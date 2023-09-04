@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.clickable
@@ -24,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.TaskStackBuilder
 import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.compose.viewModel
+import co.touchlab.kermit.Logger
 import eu.neuhuber.hn.MainActivity
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
@@ -150,7 +150,7 @@ fun openStory(context: Context, item: Item, colors: ColorScheme, icon: Bitmap) {
             .setActionButton(icon, "Show Comments", showCommentsPendingIntent, true)
             .build()
         intent.launchUrl(context, uri)
-        Log.i("openStory", uri.toString())
+        Logger.withTag("openStory").i { uri.toString() }
     }
 }
 

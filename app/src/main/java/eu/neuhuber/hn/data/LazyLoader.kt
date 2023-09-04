@@ -1,8 +1,9 @@
 package eu.neuhuber.hn.data
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateMapOf
-import kotlinx.coroutines.*
+import co.touchlab.kermit.Logger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 
@@ -14,13 +15,14 @@ class LazyLoader<K, V>(
     private val sem = Semaphore(1)
     private val queue = hashSetOf<K>()
     private val map = mutableStateMapOf<K, V>()
-    private val loaderScope : CoroutineScope = CoroutineScope(scope.coroutineContext)
+    private val loaderScope: CoroutineScope = CoroutineScope(scope.coroutineContext)
+    private val logger = Logger.withTag("LazyLoader")
 
     fun loadValue(k: K): V? {
         // already cached
         map[k]?.let { return it }
 
-        Log.v(javaClass.name, "try loading $k")
+        logger.v { "try loading $k" }
 
         loaderScope.launch {
             // possibly currently something loading
@@ -28,13 +30,13 @@ class LazyLoader<K, V>(
                 if (queue.contains(k)) return@launch
                 queue.add(k)
             }
-            Log.v(javaClass.name, "loading item $k")
+            logger.v { "loading item $k" }
 
             load(k).onSuccess {
                 map[k] = it
-                Log.v(javaClass.name, "loading done $k")
+                logger.v { "loading done $k" }
             }.onFailure {
-                Log.w(javaClass.name, "loading failed ${it.message}")
+                logger.e(it) { "loading failed" }
             }
         }
         return map[k]

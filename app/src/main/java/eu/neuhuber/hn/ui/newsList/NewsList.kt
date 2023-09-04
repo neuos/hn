@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -15,6 +14,7 @@ import androidx.compose.ui.Modifier
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import eu.neuhuber.hn.data.model.Id
+import eu.neuhuber.hn.ui.error.ErrorComponent
 import eu.neuhuber.hn.ui.home.ListType
 import eu.neuhuber.hn.ui.util.invoke
 import kotlinx.coroutines.channels.Channel
@@ -51,7 +51,9 @@ fun NewsList(
                     .verticalScroll(rememberScrollState())
                     .fillMaxHeight()
             ) {
-                Text(text = viewModel.errorMessage.toString())
+                ErrorComponent(message = viewModel.errorMessage.toString()) {
+                    viewModel.refresh()
+                }
             }
 
             storyIds == null -> {

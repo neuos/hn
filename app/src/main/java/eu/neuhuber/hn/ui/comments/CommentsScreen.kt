@@ -32,6 +32,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
+import eu.neuhuber.hn.ui.error.ErrorComponent
 import eu.neuhuber.hn.ui.newsList.openStory
 import eu.neuhuber.hn.ui.theme.HnPreview
 import eu.neuhuber.hn.ui.util.CardPlaceholder
@@ -52,9 +53,12 @@ fun CommentsScreen(
             viewModel.refresh(newsId)
         }) {
             val loadComment: LazyCommentTree? = viewModel.loadComment(newsId)
-            if (loadComment == null) CommentPlaceHolder()
-            else {
-                CommentsColumn(loadComment)
+            when {
+                viewModel.errorMessage != null -> ErrorComponent(message = viewModel.errorMessage.toString(),
+                    retry = { viewModel.refresh(newsId) })
+
+                loadComment == null -> CommentPlaceHolder()
+                else -> CommentsColumn(loadComment)
             }
         }
     }
@@ -244,8 +248,7 @@ fun CommentCard(
                 ) {
                     Text("$childCount Comments", style = typography.labelLarge)
                     if (isExpanded) Icon(
-                        Icons.Filled.KeyboardArrowUp,
-                        contentDescription = "collapse"
+                        Icons.Filled.KeyboardArrowUp, contentDescription = "collapse"
                     )
                     else Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "expand")
 
