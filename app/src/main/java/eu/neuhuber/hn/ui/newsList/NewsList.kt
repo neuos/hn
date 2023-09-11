@@ -1,34 +1,38 @@
 package eu.neuhuber.hn.ui.newsList
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.ui.error.ErrorComponent
 import eu.neuhuber.hn.ui.home.ListType
 import eu.neuhuber.hn.ui.util.invoke
 import kotlinx.coroutines.channels.Channel
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun NewsList(
-    paddingValues: PaddingValues,
     navigateToComments: (Id) -> Unit,
     scrollToTop: Channel<ListType>,
-    listType: ListType
+    listType: ListType,
+    modifier: Modifier = Modifier,
 ) {
     val viewModel = listType.viewModel()
     val storyIds = viewModel.storyIds.value
-    val isRefreshing by viewModel.refresh.isRefreshing.collectAsState()
+    val refreshing by viewModel.refresh.isRefreshing.collectAsState()
+    val refreshState = rememberPullRefreshState(refreshing, { viewModel.refresh() })
     val listState by viewModel.listState
 
     LaunchedEffect(listType) {
@@ -39,12 +43,7 @@ fun NewsList(
         }
     }
 
-    SwipeRefresh(
-        state = rememberSwipeRefreshState(isRefreshing),
-        modifier = Modifier.padding(paddingValues),
-        onRefresh = {
-            viewModel.refresh()
-        }) {
+    Box(modifier = modifier.pullRefresh(refreshState)) {
         when {
             viewModel.errorMessage != null -> Column(
                 Modifier
@@ -62,6 +61,9 @@ fun NewsList(
 
             else -> StoryList(list = storyIds, navigateToComments, viewModel, listState)
         }
+        PullRefreshIndicator(
+            refreshing = refreshing, state = refreshState, Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 
