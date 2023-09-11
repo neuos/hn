@@ -65,13 +65,13 @@ fun CommentsScreen(
 ) {
     if (newsId == null) Text(text = "Invalid News Item", modifier = modifier)
     else {
-        val refreshing by viewModel.refresh.isRefreshing.collectAsState()
-        val refreshState = rememberPullRefreshState(refreshing, { viewModel.refresh(newsId) })
+        val refreshing by viewModel.refreshAll.isRefreshing.collectAsState()
+        val refreshState = rememberPullRefreshState(refreshing, { viewModel.refreshAll(newsId) })
         Box(modifier = modifier.pullRefresh(refreshState)) {
             val loadComment: LazyCommentTree? = viewModel.loadComment(newsId)
             when {
                 viewModel.errorMessage != null -> ErrorComponent(message = viewModel.errorMessage.toString(),
-                    retry = { viewModel.refresh(newsId) })
+                    retry = { viewModel.refreshAll(newsId) })
 
                 loadComment == null -> CommentPlaceHolder()
                 else -> CommentsColumn(loadComment)
@@ -85,10 +85,16 @@ fun CommentsScreen(
 private fun CommentsColumn(loadComment: LazyCommentTree) {
     LazyColumn(Modifier.fillMaxHeight()) {
         item {
-            CommentScreenHeader(loadComment.item)
-            loadComment.item?.text?.let {
+            CommentScreenHeader(loadComment.node)
+            val commentNode = loadComment.node as? LazyCommentNode.Comment
+            commentNode?.item?.text?.let {
                 CommentCard(
-                    text = it, author = loadComment.item?.by, time = loadComment.item?.time
+                    text = it,
+                    author = commentNode.item.by,
+                    time = commentNode.item.time,
+                    modifier = Modifier.padding(
+                        top = 2.dp, start = 4.dp, end = 4.dp
+                    )
                 )
             }
         }
@@ -101,40 +107,58 @@ private fun CommentsColumn(loadComment: LazyCommentTree) {
 @Composable
 private fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = viewModel()) {
     val expanded = remember { mutableStateOf(depth < 2) }
-
-    val item = viewModel.loadComment(id)?.item
-
-    if (item == null) CommentPlaceHolder()
-    else {
-        CommentCard(
-            text = item.text,
-            childCount = item.kids?.size ?: 0,
-            depth = depth,
-            isExpanded = expanded.value,
-            author = item.by,
-            time = item.time
-        ) {
-            expanded.value = !expanded.value
+    val modifier = Modifier.padding(
+        top = 2.dp,
+        start = ((depth + 1) * 4).dp,
+        end = 4.dp
+    ).fillMaxWidth()
+    when (val commentNode = viewModel.loadComment(id)?.node) {
+        null, is LazyCommentNode.Loading -> {
+            CommentPlaceHolder(
+                modifier = modifier
+            )
         }
 
-        AnimatedVisibility(visible = expanded.value) {
-            Column {
-                item.kids?.forEach {
-                    CommentNode(it, depth + 1)
+        is LazyCommentNode.Error -> ErrorComponent(
+            message = commentNode.message,
+            modifier = modifier,
+            retry = { viewModel.refreshSingle(id) }
+        )
+
+        is LazyCommentNode.Comment -> {
+            val item = commentNode.item
+            CommentCard(
+                text = item.text,
+                childCount = item.kids?.size ?: 0,
+                depth = depth,
+                isExpanded = expanded.value,
+                author = item.by,
+                time = item.time
+            ) {
+                expanded.value = !expanded.value
+            }
+
+            AnimatedVisibility(visible = expanded.value) {
+                Column {
+                    item.kids?.forEach {
+                        CommentNode(it, depth + 1)
+                    }
                 }
             }
+
         }
 
     }
 }
 
 @Composable
-private fun CommentScreenHeader(item: Item?) {
+private fun CommentScreenHeader(commentNode: LazyCommentNode) {
     val typography = MaterialTheme.typography
-    if (item == null) CommentPlaceHolder()
-    else {
-        ElevatedCard(Modifier.fillMaxWidth()) {
-
+    when (commentNode) {
+        is LazyCommentNode.Loading -> CommentPlaceHolder()
+        is LazyCommentNode.Error -> Text(text = commentNode.message, style = typography.titleLarge)
+        is LazyCommentNode.Comment -> ElevatedCard(Modifier.fillMaxWidth()) {
+            val item = commentNode.item
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -193,21 +217,23 @@ private fun CommentScreenHeader(item: Item?) {
 
 @HnPreviews
 @Composable
-fun CommentPlaceHolder() = HnTheme {
-    CardPlaceholder(height = 64.dp)
+private fun CommentPlaceHolder(modifier: Modifier = Modifier) = HnTheme {
+    CardPlaceholder(height = 64.dp, modifier = modifier)
 }
 
 @HnPreviews
 @Composable
 fun CommentScreenHeaderPlaceholder() = CommentScreenHeader(
-    Item(
-        id = 0,
-        title = "Something very newsworthy has happened again",
-        score = 123456,
-        by = "neuos",
-        descendants = 7890123,
-        url = Uri.parse("https://neuhuber.eu/news/1"),
-        time = Instant.now(),
+    LazyCommentNode.Comment(
+        Item(
+            id = 0,
+            title = "Something very newsworthy has happened again",
+            score = 123456,
+            by = "neuos",
+            descendants = 7890123,
+            url = Uri.parse("https://neuhuber.eu/news/1"),
+            time = Instant.now(),
+        )
     )
 )
 

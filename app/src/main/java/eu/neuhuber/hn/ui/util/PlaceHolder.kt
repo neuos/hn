@@ -18,9 +18,10 @@ import com.google.accompanist.placeholder.fade
 import com.google.accompanist.placeholder.material.placeholder
 
 @Composable
-fun CardPlaceholder(height: Dp) {
+fun CardPlaceholder(height: Dp,
+                    modifier: Modifier = Modifier,) {
     ElevatedCard(
-        Modifier
+        modifier
             .fillMaxWidth()
             .padding(4.dp)
             .height(height)

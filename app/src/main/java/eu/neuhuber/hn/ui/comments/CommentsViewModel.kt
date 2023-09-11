@@ -9,20 +9,25 @@ import co.touchlab.kermit.Logger
 import eu.neuhuber.hn.data.LazyLoader
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
-import eu.neuhuber.hn.data.repo.HackerNewsRepository
+import eu.neuhuber.hn.data.repo.FakeNewsRepository
 import eu.neuhuber.hn.data.repo.NewsRepository
 import eu.neuhuber.hn.ui.util.Refresher
 
 class CommentsViewModel : ViewModel() {
-    private val newsRepository: NewsRepository = HackerNewsRepository
+    private val newsRepository: NewsRepository = FakeNewsRepository
     private val logger = Logger.withTag("CommentsViewModel")
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
     fun loadComment(id: Id): LazyCommentTree? = loader.loadValue(id)
 
-    val refresh = Refresher<Id>(viewModelScope) {
+    val refreshAll = Refresher<Id>(viewModelScope) {
         loader.clear()
+        loader.loadValue(it)
+    }
+
+    val refreshSingle = Refresher<Id>(viewModelScope) {
+        loader.clear(it)
         loader.loadValue(it)
     }
 
@@ -33,15 +38,14 @@ class CommentsViewModel : ViewModel() {
     // TODO: single item error should show on the single element
     private suspend fun loadLazyCommentTree(id: Id): Result<LazyCommentTree> {
         errorMessage = null
-        val tree = LazyCommentTree(id)
         val item = newsRepository.getItem(id)
         return item.fold(
             onSuccess = {
-                tree.item = it
+                val tree = LazyCommentTree(id)
+                tree.node = LazyCommentNode.Comment(it)
                 Result.success(tree)
             },
             onFailure = {
-                errorMessage = it.message
                 logger.e(it) { "failed to load item $id" }
                 Result.failure(it)
             }
@@ -51,12 +55,18 @@ class CommentsViewModel : ViewModel() {
 }
 
 class LazyCommentTree(val id: Id) {
-    var item: Item? = null
+    var node: LazyCommentNode = LazyCommentNode.Loading
         set(value) {
             field = value
-            value?.kids?.let { kids ->
-                children = kids.map { LazyCommentTree(it) }
+            if (value is LazyCommentNode.Comment) {
+                children = value.item.kids?.map { LazyCommentTree(it) } ?: listOf()
             }
         }
     var children: List<LazyCommentTree> = listOf()
+}
+
+sealed class LazyCommentNode {
+    data object Loading : LazyCommentNode()
+    data class Comment(val item: Item) : LazyCommentNode()
+    data class Error(val message: String) : LazyCommentNode()
 }

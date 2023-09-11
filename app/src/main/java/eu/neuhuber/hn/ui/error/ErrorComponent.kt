@@ -21,16 +21,29 @@ import eu.neuhuber.hn.ui.theme.HnPreviews
 import eu.neuhuber.hn.ui.theme.HnTheme
 
 @Composable
-fun ErrorComponent(message: String, modifier:Modifier = Modifier, retry: () -> Unit) {
-    Card(modifier, colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)) {
+fun ErrorComponent(message: String, modifier: Modifier = Modifier, retry: (() -> Unit)? = null) {
+    Card(
+        modifier,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+    ) {
         Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(message, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onErrorContainer)
-        Spacer(modifier = Modifier.size(16.dp))
-        Button(onClick = retry, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onErrorContainer)) {
-            Icon(imageVector = Icons.Default.Refresh, contentDescription = "Retry")
-            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-            Text("Retry")
-        }
+            Text(
+                message,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onErrorContainer
+            )
+            if (retry != null) {
+                Spacer(modifier = Modifier.size(16.dp))
+                Button(
+                    onClick = retry,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.onErrorContainer)
+                ) {
+                    Icon(imageVector = Icons.Default.Refresh, contentDescription = "Retry")
+                    Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+                    Text("Retry")
+                }
+            }
+
         }
     }
 }

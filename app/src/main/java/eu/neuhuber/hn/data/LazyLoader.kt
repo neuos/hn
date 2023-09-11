@@ -35,8 +35,10 @@ class LazyLoader<K, V>(
             load(k).onSuccess {
                 map[k] = it
                 logger.v { "loading done $k" }
+                queue.remove(k)
             }.onFailure {
                 logger.e(it) { "loading failed" }
+                queue.remove(k)
             }
         }
         return map[k]
@@ -45,6 +47,11 @@ class LazyLoader<K, V>(
     suspend fun clear() = sem.withPermit {
         map.clear()
         queue.clear()
+    }
+
+    suspend fun clear(k: K) = sem.withPermit {
+        map.remove(k)
+        queue.remove(k)
     }
 }
 

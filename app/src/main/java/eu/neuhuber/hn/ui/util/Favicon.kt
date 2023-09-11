@@ -45,6 +45,6 @@ private fun faviconUrl(uri: Uri) = Uri.Builder()
 @Composable
 fun FaviconPreview() {
     Favicon(
-        uri = Uri.parse("https://uibk.ac.at")
+        uri = Uri.parse("https://news.ycombinator.com/"),
     )
 }
