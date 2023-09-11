@@ -26,7 +26,6 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -128,7 +127,6 @@ fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = viewModel
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentScreenHeader(item: Item?) {
     val typography = MaterialTheme.typography
@@ -210,7 +208,6 @@ fun CommentScreenHeaderPlaceholder() = CommentScreenHeader(
     )
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CommentCard(
     text: String?,

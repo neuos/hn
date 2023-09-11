@@ -21,7 +21,7 @@ import io.ktor.client.plugins.logging.Logger as KtorLogger
 
 object HackerNewsRepository : NewsRepository {
     private val logger = Logger.withTag("HackerNewsRepository")
-    private val client = HttpClient() {
+    private val client = HttpClient {
         defaultRequest {
             header(HttpHeaders.Accept, ContentType.Application.Json)
             url { protocol = URLProtocol.HTTPS }
@@ -41,14 +41,14 @@ object HackerNewsRepository : NewsRepository {
         install(UserAgent) {
             agent = "ktor - eu.neuhuber.hn"
         }
-        install(HttpTimeout){
+        install(HttpTimeout) {
             requestTimeoutMillis = 4000
         }
     }
 
     private suspend inline fun <reified T> tryGet(path: String): Result<T> = try {
         val httpResponse = client.get(urlString = path)
-        when(httpResponse.status.value) {
+        when (httpResponse.status.value) {
             200 -> Result.success(httpResponse.body())
             else -> {
                 logger.e { "get request to $path failed with status ${httpResponse.status}" }
