@@ -61,13 +61,13 @@ import java.time.Instant
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CommentsScreen(
-    newsId: Id?, viewModel: CommentsViewModel = viewModel()
+    newsId: Id?, modifier: Modifier = Modifier, viewModel: CommentsViewModel = viewModel()
 ) {
-    if (newsId == null) Text(text = "Invalid News Item")
+    if (newsId == null) Text(text = "Invalid News Item", modifier = modifier)
     else {
         val refreshing by viewModel.refresh.isRefreshing.collectAsState()
         val refreshState = rememberPullRefreshState(refreshing, { viewModel.refresh(newsId) })
-        Box(modifier = Modifier.pullRefresh(refreshState)) {
+        Box(modifier = modifier.pullRefresh(refreshState)) {
             val loadComment: LazyCommentTree? = viewModel.loadComment(newsId)
             when {
                 viewModel.errorMessage != null -> ErrorComponent(message = viewModel.errorMessage.toString(),
@@ -99,7 +99,7 @@ private fun CommentsColumn(loadComment: LazyCommentTree) {
 }
 
 @Composable
-fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = viewModel()) {
+private fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = viewModel()) {
     val expanded = remember { mutableStateOf(depth < 2) }
 
     val item = viewModel.loadComment(id)?.item
@@ -129,7 +129,7 @@ fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = viewModel
 }
 
 @Composable
-fun CommentScreenHeader(item: Item?) {
+private fun CommentScreenHeader(item: Item?) {
     val typography = MaterialTheme.typography
     if (item == null) CommentPlaceHolder()
     else {
@@ -180,8 +180,8 @@ fun CommentScreenHeader(item: Item?) {
                         val contentDescription = "open in browser"
                         Favicon(
                             uri = item.url,
-                            contentDescription,
-                            painterResource(id = R.drawable.ic_baseline_open_in_browser_24)
+                            contentDescription = contentDescription,
+                            placeholder = painterResource(id = R.drawable.ic_baseline_open_in_browser_24)
                         )
                     }
                 }

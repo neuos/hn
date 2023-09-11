@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import eu.neuhuber.hn.ui.theme.HnPreviews
@@ -12,7 +13,10 @@ import io.kamel.image.asyncPainterResource
 
 @Composable
 fun Favicon(
-    uri: Uri, contentDescription: String? = null, placeholder: Painter? = null
+    uri: Uri,
+    modifier: Modifier = Modifier,
+    contentDescription: String? = null,
+    placeholder: Painter? = null
 ) {
     val faviconUri = faviconUrl(uri)
 
@@ -27,6 +31,7 @@ fun Favicon(
         onLoading = placeholderIcon,
         onFailure = placeholderIcon,
         contentScale = ContentScale.Fit,
+        modifier = modifier,
     )
 }
 
