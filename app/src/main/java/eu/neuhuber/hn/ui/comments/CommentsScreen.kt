@@ -49,7 +49,8 @@ import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
 import eu.neuhuber.hn.ui.error.ErrorComponent
 import eu.neuhuber.hn.ui.newsList.openStory
-import eu.neuhuber.hn.ui.theme.HnPreview
+import eu.neuhuber.hn.ui.theme.HnPreviews
+import eu.neuhuber.hn.ui.theme.HnTheme
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.Favicon
 import eu.neuhuber.hn.ui.util.createBitmap
@@ -190,11 +191,13 @@ fun CommentScreenHeader(item: Item?) {
 }
 
 
-@HnPreview
+@HnPreviews
 @Composable
-fun CommentPlaceHolder() = CardPlaceholder(height = 64.dp)
+fun CommentPlaceHolder() = HnTheme {
+    CardPlaceholder(height = 64.dp)
+}
 
-@HnPreview
+@HnPreviews
 @Composable
 fun CommentScreenHeaderPlaceholder() = CommentScreenHeader(
     Item(

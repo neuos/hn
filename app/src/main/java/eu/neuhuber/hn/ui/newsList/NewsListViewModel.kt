@@ -11,10 +11,12 @@ import eu.neuhuber.hn.data.repo.HackerNewsRepository
 import eu.neuhuber.hn.data.repo.NewsRepository
 import eu.neuhuber.hn.ui.util.Refresher
 import eu.neuhuber.hn.ui.util.invoke
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 sealed class NewsListViewModel : ViewModel() {
     protected val newsRepository: NewsRepository = HackerNewsRepository
-    val storyIds = mutableStateOf<List<Id>?>(null)
+    val storyIds = mutableStateOf<ImmutableList<Id>?>(null)
     val listState = mutableStateOf(LazyListState())
 
     var errorMessage: String? = null
@@ -41,7 +43,7 @@ sealed class NewsListViewModel : ViewModel() {
         val ids: Result<List<Id>> = loadStoryIds()
 
         ids.onSuccess {
-            storyIds.value = it
+            storyIds.value = it.toImmutableList()
         }.onFailure {
             errorMessage = it.message
         }

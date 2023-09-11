@@ -59,7 +59,7 @@ fun NewsList(
                 Column { (1..10).map { StoryPlaceholder() } }
             }
 
-            else -> StoryList(list = storyIds, navigateToComments, viewModel, listState)
+            else -> StoryList(list = storyIds, navigateToComments, listState, viewModel = viewModel)
         }
         PullRefreshIndicator(
             refreshing = refreshing, state = refreshState, Modifier.align(Alignment.TopCenter)

@@ -85,19 +85,8 @@ val ColorScheme.navbar: Color
         return surfaceColorAtElevation(defaultNavbarElevation)
     }
 
-
-@Composable
-fun ColoredTheme(content: @Composable () -> Unit) = MaterialTheme(
-    colorScheme = hnColorScheme(),
-    typography = Typography,
-    content = content
-)
-
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO, showBackground = true, name = "Light")
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true, name = "Dark")
 @Retention(AnnotationRetention.SOURCE)
-@Target(
-    AnnotationTarget.ANNOTATION_CLASS,
-    AnnotationTarget.FUNCTION
-)
-annotation class HnPreview
+@Target(AnnotationTarget.FUNCTION)
+annotation class HnPreviews

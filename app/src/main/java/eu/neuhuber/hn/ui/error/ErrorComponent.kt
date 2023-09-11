@@ -17,8 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import eu.neuhuber.hn.ui.theme.ColoredTheme
-import eu.neuhuber.hn.ui.theme.HnPreview
+import eu.neuhuber.hn.ui.theme.HnPreviews
+import eu.neuhuber.hn.ui.theme.HnTheme
 
 @Composable
 fun ErrorComponent(message: String, modifier:Modifier = Modifier, retry: () -> Unit) {
@@ -35,10 +35,10 @@ fun ErrorComponent(message: String, modifier:Modifier = Modifier, retry: () -> U
     }
 }
 
-@HnPreview
+@HnPreviews
 @Composable
 fun ErrorComponentPreview() {
-    ColoredTheme {
+    HnTheme {
         ErrorComponent("Something bad happened.") {}
     }
 }

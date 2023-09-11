@@ -6,7 +6,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import eu.neuhuber.hn.ui.theme.HnPreview
+import eu.neuhuber.hn.ui.theme.HnPreviews
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 
@@ -36,7 +36,7 @@ private fun faviconUrl(uri: Uri) = Uri.Builder()
     .path("favicon.ico").build().toString()
 
 
-@HnPreview
+@HnPreviews
 @Composable
 fun FaviconPreview() {
     Favicon(

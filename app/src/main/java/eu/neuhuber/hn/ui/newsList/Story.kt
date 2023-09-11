@@ -10,12 +10,9 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -41,24 +38,26 @@ import eu.neuhuber.hn.MainActivity
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
-import eu.neuhuber.hn.ui.theme.ColoredTheme
-import eu.neuhuber.hn.ui.theme.HnPreview
+import eu.neuhuber.hn.ui.theme.HnPreviews
+import eu.neuhuber.hn.ui.theme.HnTheme
 import eu.neuhuber.hn.ui.theme.navbar
 import eu.neuhuber.hn.ui.util.AutoSizeText
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.createBitmap
 import eu.neuhuber.hn.ui.util.toLocalString
+import kotlinx.collections.immutable.ImmutableList
 import java.time.Instant
 
 
 @Composable
 fun StoryList(
-    list: List<Id>,
+    list: ImmutableList<Id>,
     navigateToComments: (Id) -> Unit,
+    listState: LazyListState,
+    modifier: Modifier = Modifier,
     viewModel: NewsListViewModel = viewModel(),
-    listState: LazyListState
 ) {
-    LazyColumn(Modifier.fillMaxHeight(), listState) {
+    LazyColumn(modifier.fillMaxHeight(), listState) {
         items(list) {
             val item = viewModel.loadStory(it)
             if (item == null) StoryPlaceholder()
@@ -73,25 +72,24 @@ fun StoryPlaceholder() = CardPlaceholder(height = 96.dp)
 
 
 @Composable
-fun Story(item: Item, navigateToComments: (Id) -> Unit) {
+fun Story(item: Item, navigateToComments: (Id) -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val typography = MaterialTheme.typography
     val colors = MaterialTheme.colorScheme
 
     ElevatedCard(
-        Modifier
+        modifier
             .fillMaxWidth()
             .padding(4.dp),
     ) {
         Row(
             Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
                 Modifier
-                    .width(40.dp)
-                    .fillMaxHeight(),
+                    .width(40.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -108,8 +106,7 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
                             openStory(context, item, colors, icon)
                         }
                     }
-                    .padding(4.dp)
-                    .fillMaxHeight()) {
+                    .padding(4.dp)) {
                 Text("${item.by} - ${item.time?.toLocalString()}", style = typography.labelSmall)
                 Text(item.title ?: "no title", style = typography.titleLarge)
                 item.url?.host?.let { Text(it, style = typography.labelMedium) }
@@ -117,8 +114,6 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit) {
             Column(
                 modifier = Modifier
                     .width(40.dp)
-                    .defaultMinSize(minHeight = 64.dp)
-                    .fillMaxHeight()
                     .clickable { navigateToComments(item.id) },
                 Arrangement.Center,
                 Alignment.CenterHorizontally
@@ -167,64 +162,56 @@ fun openStory(context: Context, item: Item, colors: ColorScheme, icon: Bitmap) {
 }
 
 
-@HnPreview
+@HnPreviews
 @Composable
-fun StoryPreview() {
-    ColoredTheme {
-        Story(
-            item = Item(
-                id = 0,
-                title = "Something very newsworthy has happened again",
-                score = 446,
-                by = "neuos",
-                descendants = 384,
-                url = Uri.parse("https://neuhuber.eu/news/1"),
-                time = Instant.now(),
-            ), navigateToComments = {}
-        )
-    }
+fun StoryPreview() = HnTheme {
+    Story(
+        item = Item(
+            id = 0,
+            title = "Something very newsworthy has happened again",
+            score = 446,
+            by = "neuos",
+            descendants = 384,
+            url = Uri.parse("https://neuhuber.eu/news/1"),
+            time = Instant.now(),
+        ), navigateToComments = {}
+    )
 }
 
-@HnPreview
+@HnPreviews
 @Composable
-fun StoryPreviewLargeNumbers() {
-    ColoredTheme {
-        Story(
-            item = Item(
-                id = 0,
-                title = "Something very newsworthy has happened again",
-                score = 123456,
-                by = "neuos",
-                descendants = 7890123,
-                url = Uri.parse("https://neuhuber.eu/news/1"),
-                time = Instant.now(),
-            ), navigateToComments = {}
-        )
-    }
+fun StoryPreviewLargeNumbers() = HnTheme {
+    Story(
+        item = Item(
+            id = 0,
+            title = "Something very newsworthy has happened again",
+            score = 123456,
+            by = "neuos",
+            descendants = 7890123,
+            url = Uri.parse("https://neuhuber.eu/news/1"),
+            time = Instant.now(),
+        ), navigateToComments = {}
+    )
 }
 
-@HnPreview
+@HnPreviews
 @Composable
-fun StoryPreviewSmallNumbers() {
-    ColoredTheme {
-        Story(
-            item = Item(
-                id = 0,
-                title = "Something very newsworthy has happened again",
-                score = 1,
-                by = "neuos",
-                descendants = 2,
-                url = Uri.parse("https://neuhuber.eu/news/1"),
-                time = Instant.now(),
-            ), navigateToComments = {}
-        )
-    }
+fun StoryPreviewSmallNumbers() = HnTheme {
+    Story(
+        item = Item(
+            id = 0,
+            title = "Something very newsworthy has happened again",
+            score = 1,
+            by = "neuos",
+            descendants = 2,
+            url = Uri.parse("https://neuhuber.eu/news/1"),
+            time = Instant.now(),
+        ), navigateToComments = {}
+    )
 }
 
-@HnPreview
+@HnPreviews
 @Composable
-fun StoryPlaceholderPreview() {
-    ColoredTheme {
-        StoryPlaceholder()
-    }
+fun StoryPlaceholderPreview() = HnTheme {
+    StoryPlaceholder()
 }
