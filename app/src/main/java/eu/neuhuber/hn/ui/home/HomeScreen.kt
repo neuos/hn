@@ -48,7 +48,7 @@ fun HomeScreen(
 
     Scaffold(bottomBar = {
         NavigationBar {
-            ListType.values().forEach {
+            ListType.entries.forEach {
                 NavigationBarItem(selected = selected == it, onClick = {
                     coroutineScope.launch {
                         viewModel.navBarSelect(it)

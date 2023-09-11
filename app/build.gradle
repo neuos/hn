@@ -39,7 +39,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.4.2'
+        kotlinCompilerExtensionVersion '1.5.3'
     }
     namespace 'eu.neuhuber.hn'
 }
@@ -79,6 +79,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+
+    lintChecks("com.slack.lint.compose:compose-lint-checks:1.2.0")
 }
 
 tasks.withType(KotlinCompile).configureEach {
