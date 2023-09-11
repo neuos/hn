@@ -63,6 +63,7 @@ dependencies {
     implementation "com.google.accompanist:accompanist-placeholder-material:$accompanist_version"
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
 
+
     implementation('media.kamel:kamel-image:0.7.3')
 
     implementation "io.ktor:ktor-client-android:$ktor_version"
@@ -79,6 +80,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+
+
 
     lintChecks("com.slack.lint.compose:compose-lint-checks:1.2.0")
 }

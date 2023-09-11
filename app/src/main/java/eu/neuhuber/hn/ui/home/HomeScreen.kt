@@ -40,7 +40,9 @@ enum class ListType(val label: String, val icon: ImageVector) {
 
 @Composable
 fun HomeScreen(
-    navigateToComments: (Id) -> Unit, viewModel: HomeViewModel = viewModel()
+    navigateToComments: (Id) -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = viewModel()
 ) {
     val selected: ListType by viewModel.selected
     val coroutineScope = rememberCoroutineScope()
@@ -58,7 +60,7 @@ fun HomeScreen(
                 })
             }
         }
-    }) { paddingValues ->
+    }, modifier = modifier) { paddingValues ->
         NewsList(navigateToComments, scrollToTop, selected, Modifier.padding(paddingValues))
     }
 }
