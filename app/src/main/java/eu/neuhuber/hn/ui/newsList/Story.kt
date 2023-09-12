@@ -134,8 +134,6 @@ fun Story(item: Item, navigateToComments: (Id) -> Unit, modifier: Modifier = Mod
 
 fun openStory(context: Context, item: Item, colors: ColorScheme, icon: Bitmap) {
     item.url?.let { uri ->
-        context.resources
-
         val showCommentsIntent = Intent(
             Intent.ACTION_VIEW,
             "eu.neuhuber.hn://comments/${item.id}".toUri(),
