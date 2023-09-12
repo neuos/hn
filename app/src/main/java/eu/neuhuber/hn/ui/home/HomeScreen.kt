@@ -23,6 +23,7 @@ import eu.neuhuber.hn.ui.newsList.NewsList
 import eu.neuhuber.hn.ui.newsList.NewsListViewModel
 import eu.neuhuber.hn.ui.newsList.TopNewsListViewModel
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 
 enum class ListType(val label: String, val icon: ImageVector) {
@@ -32,9 +33,9 @@ enum class ListType(val label: String, val icon: ImageVector) {
 
     @Composable
     fun viewModel(): NewsListViewModel = when (this) {
-        Top -> viewModel<TopNewsListViewModel>()
-        New -> viewModel<NewNewsListViewModel>()
-        Best -> viewModel<BestNewsListViewModel>()
+        Top -> koinViewModel<TopNewsListViewModel>()
+        New -> koinViewModel<NewNewsListViewModel>()
+        Best -> koinViewModel<BestNewsListViewModel>()
     }
 }
 

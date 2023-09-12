@@ -19,7 +19,7 @@ import io.ktor.http.URLProtocol
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.client.plugins.logging.Logger as KtorLogger
 
-object HackerNewsRepository : NewsRepository {
+class HackerNewsRepository : NewsRepository {
     private val logger = Logger.withTag("HackerNewsRepository")
     private val client = HttpClient {
         defaultRequest {

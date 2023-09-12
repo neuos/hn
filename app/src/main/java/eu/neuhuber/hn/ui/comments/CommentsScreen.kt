@@ -42,7 +42,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.material.textview.MaterialTextView
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
@@ -55,13 +54,14 @@ import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.Favicon
 import eu.neuhuber.hn.ui.util.createBitmap
 import eu.neuhuber.hn.ui.util.toLocalString
+import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CommentsScreen(
-    newsId: Id?, modifier: Modifier = Modifier, viewModel: CommentsViewModel = viewModel()
+    newsId: Id?, modifier: Modifier = Modifier, viewModel: CommentsViewModel = koinViewModel()
 ) {
     if (newsId == null) Text(text = "Invalid News Item", modifier = modifier)
     else {
@@ -105,7 +105,7 @@ private fun CommentsColumn(loadComment: LazyCommentTree) {
 }
 
 @Composable
-private fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = viewModel()) {
+private fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = koinViewModel()) {
     val expanded = remember { mutableStateOf(depth < 2) }
     val modifier = Modifier.padding(
         top = 2.dp,
