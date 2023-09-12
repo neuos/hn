@@ -9,6 +9,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,6 +28,7 @@ fun NewsList(
     navigateToComments: (Id) -> Unit,
     scrollToTop: Channel<ListType>,
     listType: ListType,
+    snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
 ) {
     val viewModel = listType.viewModel()
@@ -35,6 +37,11 @@ fun NewsList(
     val refreshState = rememberPullRefreshState(refreshing, { viewModel.refresh() })
     val listState by viewModel.listState
 
+    LaunchedEffect(viewModel) {
+        if (viewModel is BookmarksNewsListViewModel) {
+            viewModel.refresh()
+        }
+    }
     LaunchedEffect(listType) {
         for (selectedList in scrollToTop) {
             if (selectedList == listType) {
@@ -59,7 +66,9 @@ fun NewsList(
                 Column { (1..10).map { StoryPlaceholder() } }
             }
 
-            else -> StoryList(list = storyIds, navigateToComments, listState, viewModel = viewModel)
+            else -> StoryList(
+                storyIds, navigateToComments, listState, viewModel, snackbarHostState
+            )
         }
         PullRefreshIndicator(
             refreshing = refreshing, state = refreshState, Modifier.align(Alignment.TopCenter)
