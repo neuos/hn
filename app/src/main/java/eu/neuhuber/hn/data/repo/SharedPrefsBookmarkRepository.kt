@@ -21,4 +21,5 @@ class SharedPrefsBookmarkRepository(context: Context) : BookmarkRepository {
         }
     }
 
+    override suspend fun isBookmarked(id: Id) = Result.success(prefs.contains(id.toString()))
 }

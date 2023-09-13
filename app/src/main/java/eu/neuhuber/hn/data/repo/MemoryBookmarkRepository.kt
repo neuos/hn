@@ -17,4 +17,6 @@ class MemoryBookmarkRepository : BookmarkRepository {
             Result.success(true)
         }
     }
+
+    override suspend fun isBookmarked(id: Id) = Result.success(bookmarks.contains(id))
 }

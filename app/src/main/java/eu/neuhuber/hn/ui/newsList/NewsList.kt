@@ -32,10 +32,10 @@ fun NewsList(
     modifier: Modifier = Modifier,
 ) {
     val viewModel = listType.viewModel()
-    val storyIds = viewModel.storyIds.value
+    val storyIds = viewModel.storyIds
     val refreshing by viewModel.refresh.isRefreshing.collectAsState()
     val refreshState = rememberPullRefreshState(refreshing, { viewModel.refresh() })
-    val listState by viewModel.listState
+    val listState = viewModel.listState
 
     LaunchedEffect(viewModel) {
         if (viewModel is BookmarksNewsListViewModel) {
