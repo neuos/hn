@@ -2,8 +2,8 @@ package eu.neuhuber.hn
 
 import eu.neuhuber.hn.data.repo.BookmarkRepository
 import eu.neuhuber.hn.data.repo.HackerNewsRepository
-import eu.neuhuber.hn.data.repo.MemoryBookmarkRepository
 import eu.neuhuber.hn.data.repo.NewsRepository
+import eu.neuhuber.hn.data.repo.SharedPrefsBookmarkRepository
 import eu.neuhuber.hn.ui.comments.CommentsViewModel
 import eu.neuhuber.hn.ui.newsList.BestNewsListViewModel
 import eu.neuhuber.hn.ui.newsList.BookmarksNewsListViewModel
@@ -16,7 +16,7 @@ import org.koin.dsl.module
 
 val appModule = module {
     singleOf(::HackerNewsRepository) { bind<NewsRepository>() }
-    singleOf(::MemoryBookmarkRepository){ bind<BookmarkRepository>() }
+    singleOf(::SharedPrefsBookmarkRepository){ bind<BookmarkRepository>() }
 
     viewModelOf(::CommentsViewModel)
     viewModelOf(::TopNewsListViewModel)
