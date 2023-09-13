@@ -96,7 +96,13 @@ class BestNewsListViewModel(
 class BookmarksNewsListViewModel(
     newsRepository: NewsRepository, bookmarkRepository: BookmarkRepository
 ) : NewsListViewModel(newsRepository, bookmarkRepository) {
-    override suspend fun loadStoryIds(): Result<List<Id>> = bookmarkRepository.getBookmarks()
+    override suspend fun loadStoryIds(): Result<List<Id>> {
+        val bookmarks = bookmarkRepository.getBookmarks().getOrElse { return Result.failure(it) }
+        if(bookmarks.isEmpty()) {
+            errorMessage = "Add Bookmarks by swiping on a story"
+        }
+        return Result.success(bookmarks)
+    }
 
     override suspend fun toggleBookmark(item: Item): Result<Boolean> {
         val isBookmarked = super.toggleBookmark(item).getOrElse { return Result.failure(it) }
