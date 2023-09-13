@@ -4,7 +4,6 @@ buildscript {
         kotlin_version = "1.9.10"
         compose_version = '1.5.1'
         accompanist_version = '0.32.0'
-        koin_version = '3.4.6'
         ktor_version = '2.3.4'
     }
     repositories {

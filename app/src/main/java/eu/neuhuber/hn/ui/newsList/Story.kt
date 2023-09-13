@@ -10,6 +10,7 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -136,7 +137,7 @@ private fun StoryCard(
             .padding(4.dp),
     ) {
         Row(
-            Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+            Modifier.height(IntrinsicSize.Min), verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
                 Modifier.width(40.dp),
@@ -166,7 +167,7 @@ private fun StoryCard(
             Column(
                 modifier = Modifier
                     .width(40.dp)
-                    .height(64.dp)
+                    .fillMaxHeight()
                     .clickable { navigateToComments(item.id) },
                 Arrangement.Center,
                 Alignment.CenterHorizontally

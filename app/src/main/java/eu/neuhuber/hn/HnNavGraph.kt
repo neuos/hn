@@ -35,15 +35,16 @@ class MainActions(navController: NavHostController) {
 
 @Composable
 fun HnNavGraph(
+    modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = MainDestinations.HOME_ROUTE
+    startDestination: String = MainDestinations.HOME_ROUTE,
 ) {
     val actions = remember(navController) { MainActions(navController) }
 
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         composable(MainDestinations.HOME_ROUTE) {
             HomeScreen(
