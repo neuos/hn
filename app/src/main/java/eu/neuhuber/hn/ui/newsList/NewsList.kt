@@ -3,12 +3,14 @@ package eu.neuhuber.hn.ui.newsList
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,14 +29,20 @@ fun NewsList(
     navigateToComments: (Id) -> Unit,
     scrollToTop: Channel<ListType>,
     listType: ListType,
+    snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
 ) {
     val viewModel = listType.viewModel()
-    val storyIds = viewModel.storyIds.value
+    val storyIds = viewModel.storyIds
     val refreshing by viewModel.refresh.isRefreshing.collectAsState()
     val refreshState = rememberPullRefreshState(refreshing, { viewModel.refresh() })
-    val listState by viewModel.listState
+    val listState = viewModel.listState
 
+    LaunchedEffect(viewModel) {
+        if (viewModel is BookmarksNewsListViewModel) {
+            viewModel.refresh()
+        }
+    }
     LaunchedEffect(listType) {
         for (selectedList in scrollToTop) {
             if (selectedList == listType) {
@@ -43,7 +51,7 @@ fun NewsList(
         }
     }
 
-    Box(modifier = modifier.pullRefresh(refreshState)) {
+    Box(modifier = modifier.pullRefresh(refreshState).fillMaxSize()) {
         when {
             viewModel.errorMessage != null -> Column(
                 Modifier
@@ -59,7 +67,9 @@ fun NewsList(
                 Column { (1..10).map { StoryPlaceholder() } }
             }
 
-            else -> StoryList(list = storyIds, navigateToComments, listState, viewModel = viewModel)
+            else -> StoryList(
+                storyIds, navigateToComments, listState, viewModel, snackbarHostState
+            )
         }
         PullRefreshIndicator(
             refreshing = refreshing, state = refreshState, Modifier.align(Alignment.TopCenter)

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -35,15 +36,16 @@ class MainActions(navController: NavHostController) {
 
 @Composable
 fun HnNavGraph(
+    modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
-    startDestination: String = MainDestinations.HOME_ROUTE
+    startDestination: String = MainDestinations.HOME_ROUTE,
 ) {
     val actions = remember(navController) { MainActions(navController) }
-
+    val packageName = LocalContext.current.packageName
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         composable(MainDestinations.HOME_ROUTE) {
             HomeScreen(
@@ -55,7 +57,7 @@ fun HnNavGraph(
             arguments = listOf(navArgument(STORY_ID_ARGUMENT) { type = NavType.LongType }),
             deepLinks = listOf(navDeepLink {
                 uriPattern =
-                    "eu.neuhuber.hn://${MainDestinations.COMMENTS_ROUTE}/{$STORY_ID_ARGUMENT}"
+                    "$packageName://${MainDestinations.COMMENTS_ROUTE}/{$STORY_ID_ARGUMENT}"
             },
                 // TODO: make app return to source of link on back press instead of return to home screen
                 navDeepLink {

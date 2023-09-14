@@ -11,7 +11,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             HnTheme {
-                HnNavGraph(rememberNavController())
+                HnNavGraph(navController = rememberNavController())
             }
         }
     }

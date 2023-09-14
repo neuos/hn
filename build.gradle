@@ -4,7 +4,6 @@ buildscript {
         kotlin_version = "1.9.10"
         compose_version = '1.5.1'
         accompanist_version = '0.32.0'
-        koin_version = '3.4.3'
         ktor_version = '2.3.4'
     }
     repositories {
@@ -26,6 +25,29 @@ buildscript {
 
 plugins {
     id("com.github.ben-manes.versions") version "0.48.0"
+}
+/**
+ * Returns an int representing how mature [version] is.
+ * Higher numbers are more mature.
+ */
+static def maturityLevel(String version) {
+    /**
+     * Version qualifiers, in order from least to most mature.
+     * The most mature is to have no qualifier at all.
+     */
+    def qualifiers = ["preview", "alpha", "beta", "m", "cr", "rc"]
+    def qualifiersRegex = qualifiers.collect { /(?i).*[.\-]$it[.\-\d]*/ }
+
+    def index = qualifiersRegex.findIndexOf { version ==~ it }
+    return (index < 0) ? qualifiers.size() : index
+}
+
+tasks.named("dependencyUpdates").configure {
+    rejectVersionIf {
+        def candidateMaturity = maturityLevel(it.candidate.version)
+        def currentMaturity = maturityLevel(it.currentVersion)
+        candidateMaturity < currentMaturity
+    }
 }
 
 tasks.register('clean', Delete) {
