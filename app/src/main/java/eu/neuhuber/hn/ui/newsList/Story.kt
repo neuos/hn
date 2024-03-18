@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,18 +30,18 @@ import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissState
-import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SwipeToDismiss
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDismissState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -101,9 +102,10 @@ fun Story(
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
 ) {
     val scope = rememberCoroutineScope()
-    val dismissState = rememberDismissState(
+    val dismissState = rememberSwipeToDismissBoxState(
+        positionalThreshold = { it / 2 },
         confirmValueChange = {
-            if (it != DismissValue.Default) {
+            if (it != SwipeToDismissBoxValue.Settled) {
                 scope.launch {
                     viewModel.toggleBookmark(item).onSuccess { isBookmarked ->
                         snackbarHostState.currentSnackbarData?.dismiss()
@@ -116,10 +118,14 @@ fun Story(
     )
 
     val isBookmarked = viewModel.bookmarkedIds.contains(item.id)
-
-    SwipeToDismiss(state = dismissState,
-        background = { SwipeBackground(dismissState, isBookmarked = isBookmarked, modifier) },
-        dismissContent = {
+    SwipeToDismissBox(state = dismissState, backgroundContent = {
+        SwipeBackground(
+            dismissState.targetValue != SwipeToDismissBoxValue.Settled,
+            dismissState.dismissDirection,
+            isBookmarked = isBookmarked,
+            modifier
+        )
+    }, content = {
             StoryCard(item, navigateToComments, modifier)
         })
 }
@@ -127,23 +133,35 @@ fun Story(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun SwipeBackground(
-    dismissState: DismissState,
+    targetReached: Boolean,
+    dismissDirection: SwipeToDismissBoxValue,
     isBookmarked: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val colors = if(dismissState.currentValue < dismissState.targetValue) CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer) else CardDefaults.cardColors()
+    LaunchedEffect(targetReached) {
+        Logger.withTag("SwipeBackground").d { "reached: $targetReached" }
+    }
+
+    val notReachedColor = CardDefaults.cardColors().containerColor
+    val reachedColor =
+        CardDefaults.cardColors(MaterialTheme.colorScheme.primaryContainer).containerColor
+    val color by animateColorAsState(
+        if (targetReached) reachedColor else notReachedColor,
+        label = "SwipeBackgroundColorAnimation"
+    )
+
     Card(
         modifier
             .fillMaxSize()
             .padding(4.dp),
-        colors = colors,
+        colors = CardDefaults.cardColors(color),
     ) {
         Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
-            if (dismissState.dismissDirection == DismissDirection.StartToEnd) {
+            if (dismissDirection == SwipeToDismissBoxValue.StartToEnd) {
                 BookmarkIcon(isBookmarked)
             }
             Spacer(Modifier.weight(1f))
-            if (dismissState.dismissDirection == DismissDirection.EndToStart) {
+            if (dismissDirection == SwipeToDismissBoxValue.EndToStart) {
                 BookmarkIcon(isBookmarked)
             }
         }
@@ -187,18 +205,16 @@ private fun StoryCard(
             ) {
                 AutoSizeText((item.score ?: 0).toString(), style = typography.titleMedium)
             }
-            Column(
-                Modifier
-                    .weight(1f)
-                    .clickable {
-                        if (item.url == null) navigateToComments(item.id)
-                        else {
-                            val icon =
-                                createBitmap(context, R.drawable.ic_baseline_question_answer_24)
-                            openStory(context, item, colors, icon)
-                        }
+            Column(Modifier
+                .weight(1f)
+                .clickable {
+                    if (item.url == null) navigateToComments(item.id)
+                    else {
+                        val icon = createBitmap(context, R.drawable.ic_baseline_question_answer_24)
+                        openStory(context, item, colors, icon)
                     }
-                    .padding(4.dp)) {
+                }
+                .padding(4.dp)) {
                 Text(
                     "${item.by} - ${item.time?.toLocalString()}", style = typography.labelSmall
                 )
@@ -254,7 +270,7 @@ fun openStory(context: Context, item: Item, colors: ColorScheme, icon: Bitmap) {
 
 @HnPreviews
 @Composable
-fun StoryPreview() = HnTheme {
+private fun StoryPreview() = HnTheme {
     Story(
         item = Item(
             id = 0,
@@ -272,7 +288,7 @@ fun StoryPreview() = HnTheme {
 
 @HnPreviews
 @Composable
-fun StoryPreviewLargeNumbers() = HnTheme {
+private fun StoryPreviewLargeNumbers() = HnTheme {
     Story(
         item = Item(
             id = 0,
@@ -290,7 +306,7 @@ fun StoryPreviewLargeNumbers() = HnTheme {
 
 @HnPreviews
 @Composable
-fun StoryPreviewSmallNumbers() = HnTheme {
+private fun StoryPreviewSmallNumbers() = HnTheme {
     Story(
         item = Item(
             id = 0,
@@ -308,6 +324,6 @@ fun StoryPreviewSmallNumbers() = HnTheme {
 
 @HnPreviews
 @Composable
-fun StoryPlaceholderPreview() = HnTheme {
+private fun StoryPlaceholderPreview() = HnTheme {
     StoryPlaceholder()
 }
