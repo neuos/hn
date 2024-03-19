@@ -9,6 +9,3 @@ interface NewsRepository {
     suspend fun getNewStories(): Result<List<Id>>
     suspend fun getBestStories(): Result<List<Id>>
 }
-
-
-//TODO: DI?

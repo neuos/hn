@@ -1,5 +1,7 @@
 package eu.neuhuber.hn
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -27,10 +29,7 @@ object MainDestinations {
 
 class MainActions(navController: NavHostController) {
     val navigateToComments: (Id) -> Unit = { newsId ->
-        navController.navigate("${MainDestinations.COMMENTS_ROUTE}/$newsId") {
-            anim {
-            }
-        }
+        navController.navigate("${MainDestinations.COMMENTS_ROUTE}/$newsId") { }
     }
 }
 
@@ -47,13 +46,19 @@ fun HnNavGraph(
         startDestination = startDestination,
         modifier = modifier.fillMaxSize()
     ) {
-        composable(MainDestinations.HOME_ROUTE) {
+        composable(
+            MainDestinations.HOME_ROUTE,
+            enterTransition = { slideInHorizontally { -it } },
+            exitTransition = { slideOutHorizontally { -it } },
+        ) {
             HomeScreen(
                 navigateToComments = actions.navigateToComments,
             )
         }
         composable(
             "${MainDestinations.COMMENTS_ROUTE}/{$STORY_ID_ARGUMENT}",
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { it } },
             arguments = listOf(navArgument(STORY_ID_ARGUMENT) { type = NavType.LongType }),
             deepLinks = listOf(navDeepLink {
                 uriPattern =
@@ -66,7 +71,11 @@ fun HnNavGraph(
                 })
         ) { backStackEntry ->
             Logger.withTag("HnNavGraph").d(
-                "opening comments route for ${backStackEntry.arguments?.getString(STORY_ID_ARGUMENT)}"
+                "opening comments route for ${
+                    backStackEntry.arguments?.getString(
+                        STORY_ID_ARGUMENT
+                    )
+                }"
             )
             CommentsScreen(
                 newsId = backStackEntry.arguments?.getLong(STORY_ID_ARGUMENT),

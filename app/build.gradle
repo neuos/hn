@@ -11,7 +11,7 @@ android {
         applicationId "eu.neuhuber.hn"
         minSdk 26
         targetSdk 34
-        versionCode System.getenv("VERSION_CODE")?.toInteger() ?: 1
+        versionCode System.getenv("VERSION_CODE")?.toInteger() ?: 3
         versionName "1.0.$versionCode"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -25,6 +25,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug {
+            applicationIdSuffix ".debug"
+            resValue "string", "app_name", "hn-debug"
+            debuggable true
+        }
+
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -56,7 +62,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0'
     implementation 'androidx.activity:activity-compose:1.8.2'
     implementation 'androidx.browser:browser:1.8.0'
-    implementation 'androidx.navigation:navigation-compose:2.7.7'
+    implementation 'androidx.navigation:navigation-compose:2.8.0-alpha04'
 
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.7")
 
