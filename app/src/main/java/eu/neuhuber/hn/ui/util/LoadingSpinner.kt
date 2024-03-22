@@ -12,7 +12,7 @@ import eu.neuhuber.hn.ui.theme.HnPreviews
 
 @Composable
 @HnPreviews
-fun LoadingSpinner() {
+private fun LoadingSpinner() {
     Column(
         modifier = Modifier
             .fillMaxHeight()

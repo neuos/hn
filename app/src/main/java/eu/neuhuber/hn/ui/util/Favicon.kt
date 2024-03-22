@@ -43,7 +43,7 @@ private fun faviconUrl(uri: Uri) = Uri.Builder()
 
 @HnPreviews
 @Composable
-fun FaviconPreview() {
+private fun FaviconPreview() {
     Favicon(
         uri = Uri.parse("https://news.ycombinator.com/"),
     )

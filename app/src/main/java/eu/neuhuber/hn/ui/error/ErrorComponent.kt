@@ -50,7 +50,7 @@ fun ErrorComponent(message: String, modifier: Modifier = Modifier, retry: (() ->
 
 @HnPreviews
 @Composable
-fun ErrorComponentPreview() {
+private fun ErrorComponentPreview() {
     HnTheme {
         ErrorComponent("Something bad happened.") {}
     }

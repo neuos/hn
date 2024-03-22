@@ -223,7 +223,7 @@ private fun CommentPlaceHolder(modifier: Modifier = Modifier) = HnTheme {
 
 @HnPreviews
 @Composable
-fun CommentScreenHeaderPlaceholder() = CommentScreenHeader(
+private fun CommentScreenHeaderPlaceholder() = CommentScreenHeader(
     LazyCommentNode.Comment(
         Item(
             id = 0,

@@ -11,7 +11,7 @@ android {
         applicationId "eu.neuhuber.hn"
         minSdk 26
         targetSdk 34
-        versionCode System.getenv("VERSION_CODE")?.toInteger() ?: 3
+        versionCode System.getenv("VERSION_CODE")?.toInteger() ?: 4
         versionName "1.0.$versionCode"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
