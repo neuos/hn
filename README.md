@@ -1,3 +1,3 @@
 # HN - HackerNews client with jetpack compose
 
-![App Logo](app/src/main/res/mipmap-xxxhdpi/ic_launcher.png)
+[![Android CI](https://github.com/neuos/hn/actions/workflows/android.yml/badge.svg)](https://github.com/neuos/hn/actions/workflows/android.yml)
