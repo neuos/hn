@@ -72,7 +72,7 @@ fun HnNavGraph(
         ) { backStackEntry ->
             Logger.withTag("HnNavGraph").d(
                 "opening comments route for ${
-                    backStackEntry.arguments?.getString(
+                    backStackEntry.arguments?.getLong(
                         STORY_ID_ARGUMENT
                     )
                 }"

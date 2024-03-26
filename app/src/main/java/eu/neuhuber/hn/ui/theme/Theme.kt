@@ -3,18 +3,28 @@ package eu.neuhuber.hn.ui.theme
 import android.annotation.TargetApi
 import android.content.res.Configuration
 import android.os.Build
+import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.*
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import eu.neuhuber.hn.ui.theme.ResourceColor.*
+import eu.neuhuber.hn.ui.theme.ResourceColor.HNGrey
+import eu.neuhuber.hn.ui.theme.ResourceColor.HNOrange
+import eu.neuhuber.hn.ui.theme.ResourceColor.HNOrangeLight
 import kotlin.math.ln
 
 val dynamic = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -52,6 +62,8 @@ fun hnColorScheme() = when {
 @Composable
 fun HnTheme(content: @Composable () -> Unit) {
     val colorScheme = hnColorScheme()
+    val isDarkMode = isSystemInDarkTheme()
+    val context = LocalContext.current as ComponentActivity
 
     MaterialTheme(
         colorScheme = colorScheme,
@@ -59,15 +71,18 @@ fun HnTheme(content: @Composable () -> Unit) {
         typography = Typography
     )
 
-    val systemUiController = rememberSystemUiController()
-    SideEffect {
-        systemUiController.setStatusBarColor(
-            color = colorScheme.background,
-        )
-        systemUiController.setNavigationBarColor(
-            color = colorScheme.navbar,
+    LaunchedEffect(isDarkMode) {
+        context.enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(
+                colorScheme.background.toArgb(),
+                colorScheme.background.toArgb(),
+            ), navigationBarStyle = SystemBarStyle.auto(
+                colorScheme.navbar.toArgb(),
+                colorScheme.navbar.toArgb(),
+            )
         )
     }
+
 }
 
 val ColorScheme.navbar: Color

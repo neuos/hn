@@ -27,6 +27,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -62,12 +63,19 @@ import java.time.Instant
 @Composable
 fun CommentsScreen(
     newsId: Id?, modifier: Modifier = Modifier, viewModel: CommentsViewModel = koinViewModel()
-) {
-    if (newsId == null) Text(text = "Invalid News Item", modifier = modifier)
+) = Scaffold { paddingValues ->
+    if (newsId == null) Box(modifier = Modifier.padding(paddingValues)) {
+        Text(text = "Invalid News Item", modifier = modifier)
+    }
     else {
         val refreshing by viewModel.refreshAll.isRefreshing.collectAsState()
-        val refreshState = rememberPullRefreshState(refreshing, { viewModel.refreshAll(newsId) })
-        Box(modifier = modifier.pullRefresh(refreshState)) {
+        val refreshState =
+            rememberPullRefreshState(refreshing, { viewModel.refreshAll(newsId) })
+        Box(
+            modifier = modifier
+                .padding(paddingValues)
+                .pullRefresh(refreshState)
+        ) {
             val loadComment: LazyCommentTree? = viewModel.loadComment(newsId)
             when {
                 viewModel.errorMessage != null -> ErrorComponent(message = viewModel.errorMessage.toString(),
@@ -107,11 +115,13 @@ private fun CommentsColumn(loadComment: LazyCommentTree) {
 @Composable
 private fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = koinViewModel()) {
     val expanded = remember { mutableStateOf(depth < 2) }
-    val modifier = Modifier.padding(
-        top = 2.dp,
-        start = ((depth + 1) * 4).dp,
-        end = 4.dp
-    ).fillMaxWidth()
+    val modifier = Modifier
+        .padding(
+            top = 2.dp,
+            start = ((depth + 1) * 4).dp,
+            end = 4.dp
+        )
+        .fillMaxWidth()
     when (val commentNode = viewModel.loadComment(id)?.node) {
         null, is LazyCommentNode.Loading -> {
             CommentPlaceHolder(
