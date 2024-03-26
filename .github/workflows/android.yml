@@ -27,14 +27,15 @@ jobs:
         run: chmod +x gradlew
 
       - name: Lint with Gradle
-        run: ./gradlew lint
-
-      - name: Build with Gradle
-        run: ./gradlew build
+        run: ./gradlew :app:lintRelease
 
       - name: Create Bundle and APK with Gradle
         run: ./gradlew :app:bundleRelease :app:assembleRelease
 
+      - uses: actions/upload-artifact@v2
+        with:
+          name: lint-results-${{ github.run_number }}.html
+          path: app/build/reports/lint-results-release.html
 
       - name: Sign app APK
         uses: r0adkll/sign-android-release@v1
@@ -52,5 +53,5 @@ jobs:
       # Example use of `signedReleaseFile` output -- not needed
       - uses: actions/upload-artifact@v2
         with:
-          name: Signed app bundle
+          name: eu.neuhuber.hn-${{ github.run_number }}.apk
           path: ${{steps.sign_app.outputs.signedReleaseFile}}
