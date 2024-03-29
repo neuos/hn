@@ -106,7 +106,7 @@ private fun CommentsColumn(loadComment: LazyCommentTree) {
                 )
             }
         }
-        items(loadComment.children) {
+        items(loadComment.children, key = { it.id }) {
             CommentNode(id = it.id)
         }
     }
