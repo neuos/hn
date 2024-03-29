@@ -1,7 +1,12 @@
 package eu.neuhuber.hn.ui.comments
 
+import android.graphics.Typeface
 import android.net.Uri
-import android.text.method.LinkMovementMethod
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
+import android.text.style.URLSpan
+import android.text.style.UnderlineSpan
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -31,19 +37,24 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.text.HtmlCompat
-import com.google.android.material.textview.MaterialTextView
+import co.touchlab.kermit.Logger
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
@@ -53,6 +64,7 @@ import eu.neuhuber.hn.ui.theme.HnPreviews
 import eu.neuhuber.hn.ui.theme.HnTheme
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.Favicon
+import eu.neuhuber.hn.ui.util.HtmlText
 import eu.neuhuber.hn.ui.util.createBitmap
 import eu.neuhuber.hn.ui.util.toLocalString
 import org.koin.androidx.compose.koinViewModel
@@ -117,12 +129,10 @@ private fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = k
     val expanded = remember { mutableStateOf(depth < 2) }
     val modifier = Modifier
         .padding(
-            top = 2.dp,
-            start = ((depth + 1) * 4).dp,
-            end = 4.dp
+            top = 2.dp, start = ((depth + 1) * 4).dp, end = 4.dp
         )
         .fillMaxWidth()
-    when (val commentNode = viewModel.loadComment(id)?.node) {
+    when (val commentNode = viewModel.loadComment(39866254)?.node) {
         null, is LazyCommentNode.Loading -> {
             CommentPlaceHolder(
                 modifier = modifier
@@ -288,8 +298,6 @@ fun CommentCard(
                 }
             }
 
-
-
             if (expandable) {
                 Row(
                     Modifier
@@ -309,22 +317,6 @@ fun CommentCard(
             }
         }
     }
-}
-
-@Composable
-fun HtmlText(text: String) {
-    val context = LocalContext.current
-    val linkColor = MaterialTheme.colorScheme.primary
-    val fontSize = MaterialTheme.typography.bodyMedium.fontSize
-
-    AndroidView(factory = {
-        MaterialTextView(context).apply {
-            setText(HtmlCompat.fromHtml(text, HtmlCompat.FROM_HTML_MODE_COMPACT))
-            textSize = fontSize.value
-            setLinkTextColor(linkColor.toArgb())
-            movementMethod = LinkMovementMethod.getInstance()
-        }
-    })
 }
 
 
