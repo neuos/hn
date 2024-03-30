@@ -132,7 +132,7 @@ private fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = k
             top = 2.dp, start = ((depth + 1) * 4).dp, end = 4.dp
         )
         .fillMaxWidth()
-    when (val commentNode = viewModel.loadComment(39866254)?.node) {
+    when (val commentNode = viewModel.loadComment(id)?.node) {
         null, is LazyCommentNode.Loading -> {
             CommentPlaceHolder(
                 modifier = modifier
