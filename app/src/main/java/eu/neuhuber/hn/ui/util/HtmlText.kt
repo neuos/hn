@@ -8,9 +8,9 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.text.style.TypefaceSpan
 import android.text.style.URLSpan
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -48,12 +49,16 @@ fun HtmlText(text: String, modifier: Modifier = Modifier) {
             spanned.toAnnotatedString(linkColor)
         }
     }
-    ClickableText(modifier = modifier, text = annotatedString, onClick = { offset ->
-        annotatedString.getStringAnnotations("URL", offset, offset).firstOrNull()?.let {
-            Logger.withTag("HtmlText").d { "Opening URL: ${it.item}" }
-            uriHandler.openUri(it.item)
-        }
-    })
+
+    annotatedString.getStringAnnotations("CodeBlock", 0, annotatedString.length).forEach {
+        Logger.withTag("HtmlText").d { "Found code block: ${it.start to it.end}" }
+    }
+
+    annotatedString.getStringAnnotations("Co", 0, annotatedString.length).forEach {
+        Logger.withTag("HtmlText").d { "Found URL: ${it.item}" }
+    }
+
+    Text(modifier = modifier, text = annotatedString)
 }
 
 
@@ -136,7 +141,7 @@ private fun SpannableStringBuilder.appendCodeBlock(
     lines.forEachIndexed { index, s ->
         val leadingWhitespace = s.drop(commonLeadingWhitespace).takeWhile { it.isWhitespace() }
         val trailingWhitespace = s.takeLastWhile { it.isWhitespace() }
-        val lineNumber = index.toString().padStart(lineDigits, ' ') + ' '
+        val lineNumber = (index+1).toString().padStart(lineDigits, ' ') + ' '
         append(lineNumber)
         setSpan(
             ForegroundColorSpan(lineNumberColor.toArgb()),
@@ -166,12 +171,11 @@ private fun Spanned.toAnnotatedString(linkColor: Color): AnnotatedString = build
 
             is TypefaceSpan -> if (span.family == "monospace") {
                 addStyle(SpanStyle(fontFamily = FontFamily.Monospace), start, end)
+                addStringAnnotation("CodeBlock", "", start, end)
             }
 
             is URLSpan -> {
-                addStringAnnotation(
-                    "URL", span.url, start, end
-                )
+                addLink(LinkAnnotation.Url(span.url), start, end)
                 addStyle(
                     SpanStyle(color = linkColor, textDecoration = TextDecoration.Underline),
                     start,
