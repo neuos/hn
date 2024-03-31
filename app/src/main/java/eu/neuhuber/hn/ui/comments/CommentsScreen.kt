@@ -71,6 +71,8 @@ import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
 
 
+
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun CommentsScreen(
@@ -119,7 +121,7 @@ private fun CommentsColumn(loadComment: LazyCommentTree) {
             }
         }
         items(loadComment.children, key = { it.id }) {
-            CommentNode(id = it.id)
+            CommentNode(id = 39866254)
         }
     }
 }

@@ -8,6 +8,10 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.text.style.TypefaceSpan
 import android.text.style.URLSpan
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,6 +20,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalUriHandler
@@ -27,7 +32,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.text.HtmlCompat
-import androidx.core.text.buildSpannedString
 import co.touchlab.kermit.Logger
 
 /**
@@ -43,22 +47,42 @@ fun HtmlText(text: String, modifier: Modifier = Modifier) {
     val lineNumColor = LocalContentColor.current.copy(alpha = 0.5f)
     val uriHandler = LocalUriHandler.current
 
-    val annotatedString by remember(text) {
-        derivedStateOf {
-            val spanned = toSpanned(text, lineNumColor)
-            spanned.toAnnotatedString(linkColor)
+    val commentParts by remember(text, lineNumColor) {
+        derivedStateOf { parseComment(text, lineNumColor) }
+    }
+
+    Column(modifier) {
+        commentParts.forEach { part ->
+            when (part) {
+                is CommentPart.Paragraph -> {
+                    Text(part.formattedContent(linkColor))
+                }
+
+                is CommentPart.CodeBlock -> {
+                    Text(
+                        part.formattedContent(linkColor),
+                        modifier = Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .clip(MaterialTheme.shapes.small),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+
+
+                        )
+                }
+            }
         }
-    }
 
-    annotatedString.getStringAnnotations("CodeBlock", 0, annotatedString.length).forEach {
-        Logger.withTag("HtmlText").d { "Found code block: ${it.start to it.end}" }
     }
-
-    annotatedString.getStringAnnotations("Co", 0, annotatedString.length).forEach {
-        Logger.withTag("HtmlText").d { "Found URL: ${it.item}" }
-    }
-
-    Text(modifier = modifier, text = annotatedString)
+//    annotatedString.getStringAnnotations("CodeBlock", 0, annotatedString.length).forEach {
+//        Logger.withTag("HtmlText").d { "Found code block: ${it.start to it.end}" }
+//    }
+//
+//    annotatedString.getStringAnnotations("Co", 0, annotatedString.length).forEach {
+//        Logger.withTag("HtmlText").d { "Found URL: ${it.item}" }
+//    }
+//
+//    Text(modifier = modifier, text = annotatedString)
 }
 
 
@@ -71,63 +95,82 @@ fun HtmlText(text: String, modifier: Modifier = Modifier) {
  *     <pre><code>   code block     </code></pre>
  *     <p>paragraph</p>
  */
-fun toSpanned(html: String, lineNumberColor: Color = Color.Gray): SpannedString = buildSpannedString {
-    val linkRegex = """<a href="(.+?)".*?>""".toRegex()
-    val linkCloseRegex = """</a>""".toRegex()
-    val italicRegex = """<i>""".toRegex()
-    val italicCloseRegex = """</i>""".toRegex()
-    val codeRegex = """<pre><code>""".toRegex()
-    val codeCloseRegex = """</code></pre>""".toRegex()
-    val paragraphRegex = """<p>""".toRegex()
+fun parseComment(html: String, lineNumberColor: Color = Color.Gray): List<CommentPart> {
+    return buildList {
+        var ssb = SpannableStringBuilder()
 
-    val regexes = listOf(
-        linkRegex,
-        linkCloseRegex,
-        italicRegex,
-        italicCloseRegex,
-        codeRegex,
-        codeCloseRegex,
-        paragraphRegex
-    )
+        val linkRegex = """<a href="(.+?)".*?>""".toRegex()
+        val linkCloseRegex = """</a>""".toRegex()
+        val italicRegex = """<i>""".toRegex()
+        val italicCloseRegex = """</i>""".toRegex()
+        val codeRegex = """<pre><code>""".toRegex()
+        val codeCloseRegex = """</code></pre>""".toRegex()
+        val paragraphRegex = """<p>""".toRegex()
 
-    val matches = regexes.flatMap { regex ->
-        regex.findAll(html).toList().map { match -> regex to match }
-    }.sortedBy { (_, match) -> match.range.first }
+        val regexes = listOf(
+            linkRegex,
+            linkCloseRegex,
+            italicRegex,
+            italicCloseRegex,
+            codeRegex,
+            codeCloseRegex,
+            paragraphRegex
+        )
 
-    var i = 0
-    for ((matcher, match) in matches) {
+        val matches = regexes.flatMap { regex ->
+            regex.findAll(html).toList().map { match -> regex to match }
+        }.sortedBy { (_, match) -> match.range.first }
 
-        val nextContent = html.substring(i, match.range.first)
-        if (matcher != codeCloseRegex) {
-            append(nextContent.htmlDecoded())
-        } else {
-            appendCodeBlock(nextContent, lineNumberColor)
-        }
+        var i = 0
+        for ((matcher, match) in matches) {
 
-        when (matcher) {
-            linkRegex -> {
-                val s = match.groupValues[1].htmlDecoded()
-                startSpan(URLSpan(s))
+            val nextContent = html.substring(i, match.range.first)
+            if (matcher != codeCloseRegex) {
+                ssb.append(nextContent.htmlDecoded())
+            } else {
+                ssb.appendCodeBlock(nextContent, lineNumberColor)
             }
 
-            linkCloseRegex -> endSpan<URLSpan>()
+            when (matcher) {
+                linkRegex -> {
+                    val s = match.groupValues[1].htmlDecoded()
+                    ssb.startSpan(URLSpan(s))
+                }
 
-            italicRegex -> startSpan(StyleSpan(Typeface.ITALIC))
-            italicCloseRegex -> endSpan<StyleSpan>()
+                linkCloseRegex -> ssb.endSpan<URLSpan>()
 
-            codeRegex -> startSpan(TypefaceSpan("monospace"))
-            codeCloseRegex -> endSpan<TypefaceSpan>()
+                italicRegex -> ssb.startSpan(StyleSpan(Typeface.ITALIC))
+                italicCloseRegex -> ssb.endSpan<StyleSpan>()
 
-            paragraphRegex -> appendLine('\n')
+                codeRegex -> ssb.startSpan(TypefaceSpan("monospace"))
+                codeCloseRegex -> {
+                    ssb.endSpan<TypefaceSpan>()
+                    add(CommentPart.CodeBlock(SpannedString(ssb)))
+                    ssb = SpannableStringBuilder()
+                }
 
-            else -> Logger.withTag("HtmlText").e { "Unknown match: $match" }
+                paragraphRegex -> {
+                    add(CommentPart.Paragraph(SpannedString(ssb)))
+                    ssb = SpannableStringBuilder()
+                }
+
+                else -> Logger.withTag("HtmlText").e { "Unknown match: $match" }
+            }
+            i = match.range.last + 1
         }
-        i = match.range.last + 1
-    }
 
-    if (i < html.length) {
-        append(html.substring(i).htmlDecoded())
+        if (i < html.length) {
+            ssb.append(html.substring(i).htmlDecoded())
+        }
     }
+}
+
+
+sealed class CommentPart(private val content: SpannedString) {
+    class Paragraph(content: SpannedString) : CommentPart(content)
+    class CodeBlock(content: SpannedString) : CommentPart(content)
+
+    fun formattedContent(linkColor: Color) = content.toAnnotatedString(linkColor)
 }
 
 private fun SpannableStringBuilder.appendCodeBlock(
