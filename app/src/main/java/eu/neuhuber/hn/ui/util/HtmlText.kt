@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -45,7 +44,6 @@ import co.touchlab.kermit.Logger
 fun HtmlText(text: String, modifier: Modifier = Modifier) {
     val linkColor = MaterialTheme.colorScheme.primary
     val lineNumColor = LocalContentColor.current.copy(alpha = 0.5f)
-    val uriHandler = LocalUriHandler.current
 
     val commentParts by remember(text, lineNumColor) {
         derivedStateOf { parseComment(text, lineNumColor) }
@@ -150,8 +148,10 @@ fun parseComment(html: String, lineNumberColor: Color = Color.Gray): List<Commen
                 }
 
                 paragraphRegex -> {
-                    add(CommentPart.Paragraph(SpannedString(ssb)))
-                    ssb = SpannableStringBuilder()
+                    if(ssb.isNotEmpty()){
+                        add(CommentPart.Paragraph(SpannedString(ssb)))
+                        ssb = SpannableStringBuilder()
+                    }
                 }
 
                 else -> Logger.withTag("HtmlText").e { "Unknown match: $match" }
@@ -162,6 +162,7 @@ fun parseComment(html: String, lineNumberColor: Color = Color.Gray): List<Commen
         if (i < html.length) {
             ssb.append(html.substring(i).htmlDecoded())
         }
+        add(CommentPart.Paragraph(SpannedString(ssb)))
     }
 }
 
