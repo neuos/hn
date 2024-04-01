@@ -30,7 +30,7 @@ class CommentsViewModel(private val newsRepository: NewsRepository) : ViewModel(
     }
 
     private val loader = LazyLoader<Id, LazyCommentTree>(viewModelScope) { id ->
-        loadLazyCommentTree(id)
+        loadLazyCommentTree(39866254)
     }
 
     // TODO: single item error should show on the single element
@@ -68,3 +68,4 @@ sealed class LazyCommentNode {
     data class Comment(val item: Item) : LazyCommentNode()
     data class Error(val message: String) : LazyCommentNode()
 }
+
