@@ -1,7 +1,6 @@
 package eu.neuhuber.hn.ui.comments
 
 import android.net.Uri
-import android.text.method.LinkMovementMethod
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,14 +35,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.text.HtmlCompat
-import com.google.android.material.textview.MaterialTextView
 import eu.neuhuber.hn.R
 import eu.neuhuber.hn.data.model.Id
 import eu.neuhuber.hn.data.model.Item
@@ -53,6 +48,7 @@ import eu.neuhuber.hn.ui.theme.HnPreviews
 import eu.neuhuber.hn.ui.theme.HnTheme
 import eu.neuhuber.hn.ui.util.CardPlaceholder
 import eu.neuhuber.hn.ui.util.Favicon
+import eu.neuhuber.hn.ui.util.HtmlText
 import eu.neuhuber.hn.ui.util.createBitmap
 import eu.neuhuber.hn.ui.util.toLocalString
 import org.koin.androidx.compose.koinViewModel
@@ -106,7 +102,7 @@ private fun CommentsColumn(loadComment: LazyCommentTree) {
                 )
             }
         }
-        items(loadComment.children) {
+        items(loadComment.children, key = { it.id }) {
             CommentNode(id = it.id)
         }
     }
@@ -117,9 +113,7 @@ private fun CommentNode(id: Id, depth: Int = 0, viewModel: CommentsViewModel = k
     val expanded = remember { mutableStateOf(depth < 2) }
     val modifier = Modifier
         .padding(
-            top = 2.dp,
-            start = ((depth + 1) * 4).dp,
-            end = 4.dp
+            top = 2.dp, start = ((depth + 1) * 4).dp, end = 4.dp
         )
         .fillMaxWidth()
     when (val commentNode = viewModel.loadComment(id)?.node) {
@@ -288,8 +282,6 @@ fun CommentCard(
                 }
             }
 
-
-
             if (expandable) {
                 Row(
                     Modifier
@@ -309,22 +301,6 @@ fun CommentCard(
             }
         }
     }
-}
-
-@Composable
-fun HtmlText(text: String) {
-    val context = LocalContext.current
-    val linkColor = MaterialTheme.colorScheme.primary
-    val fontSize = MaterialTheme.typography.bodyMedium.fontSize
-
-    AndroidView(factory = {
-        MaterialTextView(context).apply {
-            setText(HtmlCompat.fromHtml(text, HtmlCompat.FROM_HTML_MODE_COMPACT))
-            textSize = fontSize.value
-            setLinkTextColor(linkColor.toArgb())
-            movementMethod = LinkMovementMethod.getInstance()
-        }
-    })
 }
 
 
